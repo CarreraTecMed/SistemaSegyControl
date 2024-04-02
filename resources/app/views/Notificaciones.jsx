@@ -45,6 +45,9 @@ export default function Notificaciones() {
                             <th scope="col" className="p-2">
                                 Observaciones
                             </th>
+                            <th scope="col" className="p-2">
+                                Acciones
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,10 +63,12 @@ export default function Notificaciones() {
                                     <th scope="row" className="p-2 font-normal">
                                         {correspondencia.descripcion}
                                     </th>
-
                                     <td className="p-2">
-                                        La correspondencia se creo el dia {convertirFecha(correspondencia.created_at)} y no se ha finalizado su estado es : <span className="font-bold">{correspondencia.estado}</span> <span className="text-red-500 font-bold">"Necesita Revision"</span>
+                                        La correspondencia se creo el dia {convertirFecha(correspondencia.created_at)} y no se ha finalizado su estado es : <span className="font-bold">{correspondencia.estado}</span>
                                     </td>
+                                    <th>
+                                    <Link className="bg-red-600 hover:bg-red-700 font-bold text-white p-1 rounded-lg text-xs" to={`/administrativo/correspondencia-${correspondencia.tipo}/editar/${correspondencia.id}`}>Ir a correspondencia</Link>
+                                    </th>
                                 </tr>
                             ))
                         }
