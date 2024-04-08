@@ -28,6 +28,7 @@ class User extends Authenticatable
         'fechaNacimiento',
         'email',
         'password',
+        'resetear'
     ];
 
     /**
@@ -51,7 +52,7 @@ class User extends Authenticatable
     ];
 
     public function student() {
-        return $this->hasOne(Student::class, 'id', 'id');
+        return $this->hasOne(Student::class,'user_id','id');
     }
 
     public function responses() {
