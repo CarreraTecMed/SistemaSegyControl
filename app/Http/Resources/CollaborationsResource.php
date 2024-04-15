@@ -69,7 +69,7 @@ class CollaborationsResource extends JsonResource
                 'id' => $this->correspondence_id,
                 'nombre' => $this->correspondence->nombre,
                 'fechaCreacion' => $this->correspondence->fechaCreacion,
-                'hojaDeRuta' => $this->correspondence->hojaDeRuta,
+                'identificador' => $this->correspondence->identificador,
                 'descripcion' => $this->correspondence->descripcion,
                 'estado' => $this->correspondence->estado,
                 'created_at' => $this->correspondence->created_at

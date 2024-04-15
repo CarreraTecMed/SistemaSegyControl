@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Correspondece
 
-    Route::get('/correspondences/hojaDeRuta', [CorrespondenceController::class, 'getIdentificador']);
+    Route::get('/correspondences/identificador', [CorrespondenceController::class, 'getIdentificador']);
     Route::get('/correspondences/received', [CorrespondenceController::class, 'getCorrespondencesReceived']);
     Route::get('/correspondences/despachada', [CorrespondenceController::class, 'getCorrespondencesDespachada']);
     Route::get('/correspondences/recover', [CorrespondenceController::class, 'getCorrespondencesRecover']);

@@ -8,7 +8,6 @@ import Sidebar from "../components/Sidebar";
 import ModalMaterial from "../components/ModalMaterial";
 import SinPermisos from "../components/SinPermisos";
 import ModalDocumento from "../components/ModalDocumento";
-import ModalRespuesta from "../components/ModalRespuesta";
 import ModalRecuperarContraseña from "../components/ModalRecuperarContraseña";
 import { useEffect } from "react";
 

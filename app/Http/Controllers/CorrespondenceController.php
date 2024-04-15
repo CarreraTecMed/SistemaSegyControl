@@ -40,14 +40,14 @@ class CorrespondenceController extends Controller
     {
 
         $correspondencias = Correspondence::with('unit')->where('tipo', 'despachada')->get();
-        $hojaDeRuta = 12500;
+        $identificador = 12500;
 
         if (count($correspondencias) > 0) {
             $lastCorrespondencia = $correspondencias->last();
-            $hojaDeRuta = intval($lastCorrespondencia->hojaDeRuta) + 1;
+            $identificador = intval($lastCorrespondencia->identificador) + 1;
         }
         return [
-            'identificador' => strval($hojaDeRuta . '-CTM')
+            'identificador' => strval($identificador . '-CTM')
         ];
     }
 
@@ -70,7 +70,7 @@ class CorrespondenceController extends Controller
                 "unit_id" => $data['unit_id'],
                 "nombre" => $data['nombre'],
                 "fechaCreacion" => Carbon::now(),
-                "hojaDeRuta" => $data['hojaDeRuta'],
+                "identificador" => $data['identificador'],
                 "descripcion" => $data['descripcion'],
                 "estado" => $request['estado'],
                 "receptor" => '',
@@ -112,12 +112,12 @@ class CorrespondenceController extends Controller
 
         $request->validate([
             "nombre" => ['required', 'string'],
-            "hojaDeRuta" => ['required', 'string'],
+            "identificador" => ['required', 'string'],
             "descripcion" => ['required', 'string'],
             "estado" => ['string']
         ], [
             'nombre.required' => 'El nombre del documento es obligatorio',
-            'hojaDeRuta.unique' => 'Ya existe una hoja de ruta con esa identificacion',
+            'identificador.unique' => 'Ya existe una hoja de ruta con esa identificacion',
             'unit_id' => 'La unidad es obligatoria',
             'descripcion.required' => 'La descripcion es obligatoria',
         ]);
@@ -145,7 +145,7 @@ class CorrespondenceController extends Controller
             }
 
             $correspondence->nombre = $request->nombre;
-            $correspondence->hojaDeRuta = $request->hojaDeRuta;
+            $correspondence->identificador = $request->identificador;
             $correspondence->descripcion = $request->descripcion;
             $correspondence->receptor = $request->receptor;
             $correspondence->unit_id = $request->unit_id;
@@ -250,10 +250,9 @@ class CorrespondenceController extends Controller
         foreach ($correspondencias as $correspondencia) {
             $fechaCambiada = Carbon::createFromFormat('Y-m-d', $correspondencia->fechaCreacion);
 
-            // $data[] = [$fechaCambiada->format('d-m-Y'), $correspondencia->receptor ? iconv('UTF-8', 'windows-1252', $correspondencia->receptor) : 'Sin receptor', iconv('UTF-8', 'windows-1252', $correspondencia->nombre),iconv('UTF-8', 'windows-1252', $correspondencia->unit->nombre),$correspondencia->hojaDeRuta, iconv('UTF-8', 'windows-1252', $correspondencia->descripcion), $correspondencia->estado];
             $data[] = [
                 $fechaCambiada->format('d-m-Y'),
-                $correspondencia->receptor ? iconv('UTF-8', 'windows-1252', $correspondencia->receptor) : 'Sin receptor', iconv('UTF-8', 'windows-1252', $correspondencia->nombre), $correspondencia->hojaDeRuta,
+                $correspondencia->receptor ? iconv('UTF-8', 'windows-1252', $correspondencia->receptor) : 'Sin receptor', iconv('UTF-8', 'windows-1252', $correspondencia->nombre), $correspondencia->identificador,
                 iconv('UTF-8', 'windows-1252', $correspondencia->descripcion)
             ];
         };

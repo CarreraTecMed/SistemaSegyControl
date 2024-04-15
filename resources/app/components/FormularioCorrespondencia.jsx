@@ -19,7 +19,7 @@ export default function FormularioCorrespondencia() {
 
     const [errores, setErrores] = useState([])
     const [nombre, setNombre] = useState('');
-    const [hojaDeRuta, setHojaDeRuta] = useState('');
+    const [identificador, setIdentificador] = useState('');
     const [area, setArea] = useState('');
     const [unidades, setUnidades] = useState([]);
     const [unidad, setUnidad] = useState('');
@@ -39,7 +39,7 @@ export default function FormularioCorrespondencia() {
         let resultado = false
         const datos = {
             nombre,
-            hojaDeRuta,
+            identificador,
             unit_id: unidad,
             area,
             descripcion,
@@ -62,7 +62,7 @@ export default function FormularioCorrespondencia() {
     }
 
     
-    let url = id ? `/api/correspondences/${id}` : `/api/correspondences/hojaDeRuta`
+    let url = id ? `/api/correspondences/${id}` : `/api/correspondences/identificador`
 
     const handleUnit = async (areaSelected) => {
         setUnidades([])
@@ -94,7 +94,7 @@ export default function FormularioCorrespondencia() {
         const obtenerDatos = async () => {
             if (id && !isLoading) {
                 setNombre(data.data.nombre)
-                setHojaDeRuta(data.data.hojaDeRuta)
+                setIdentificador(data.data.identificador)
                 setUnidad(data.data?.unit?.id)
                 setDescripcion(data.data.descripcion)
                 setFile(data.data.documento)
@@ -109,7 +109,7 @@ export default function FormularioCorrespondencia() {
 
     useEffect(() => {
         if (Boolean(id) === false && !isLoading && pathname.includes('despachada')) {
-            setHojaDeRuta(data.data.identificador);
+            setIdentificador(data.data.identificador);
         }
     }, [isLoading, data])
 
@@ -125,8 +125,8 @@ export default function FormularioCorrespondencia() {
                         className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="nombre" placeholder="Ej. Reunion de delegados" name="nombre" value={nombre} onChange={e => setNombre(e.target.value)} />
                 </div>
                 <div className="flex flex-col text-gray-400 py-1">
-                    <label className="text-gray-200 font-bold" htmlFor="hojaDeRuta">Indentificador</label>
-                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="hojaDeRuta" placeholder="Ej. 812512" name="hojaDeRuta" value={hojaDeRuta} onChange={e => setHojaDeRuta(e.target.value)} />
+                    <label className="text-gray-200 font-bold" htmlFor="identificador">Indentificador</label>
+                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="identificador" placeholder="Ej. 812512" name="identificador" value={identificador} onChange={e => setIdentificador(e.target.value)} />
                 </div>
                 <div className="flex flex-col text-gray-400 py-1">
                     <label className="text-gray-200 font-bold" htmlFor="area">Area</label>

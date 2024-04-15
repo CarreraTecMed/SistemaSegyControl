@@ -9,14 +9,10 @@ import Sidebar from '../components/Sidebar'
 import ModalDetallesMateriales from '../components/ModalDetallesMateriales';
 import ModalMaterial from '../components/ModalMaterial';
 import SinPermisos from '../components/SinPermisos';
-import ModalColaboradores from '../components/ModalColaboradores';
 import ModalCajaChica from '../components/ModalCajaChica';
 import ModalCajaChicaDocumento from '../components/ModalCajaChicaDocumento';
 import ModalDocumento from '../components/ModalDocumento';
-import ModalRespuesta from '../components/ModalRespuesta';
 import ModalDocumentoGeneradoCorrespondencia from '../components/ModalDocumentoGeneradoCorrespondencia';
-// import { usePusher } from '../hooks/usePusher';
-import ModalConfirmarNavegacion from '../components/ModalConfirmarNavegacion';
 import ModalRecuperarContraseña from '../components/ModalRecuperarContraseña';
 import { useEffect } from 'react';
 
@@ -36,24 +32,14 @@ const customStyles = {
 Modal.setAppElement('#root')
 
 export default function Layout() {
-  const { modalMoreDetails, modalMaterial, usuarioLogin, modalCorrespondencia, modalCajaChica, modalCajaChicaDocumento, modalColaboradores, modalRespuesta, modalDocumentoGeneradoCorrespondencia, modalContraseña, changeStateModalContraseña, changeConfirmationNavegation, setRespuestaNavegacion, modalNavegacion } = useProyect();
-  // const pusher = usePusher('my-channel', 'event-notification', data => {
-  //   const audio = new Audio('/musica/notificacion.mp3')
-  //   audio.play();
-  //   setRespuestaNavegacion({
-  //     nombreCompleto: data.nombreCompleto,
-  //     nombreCorrespondencia: data.correspondencia,
-  //     id: data.id
-  //   })
-  //   changeConfirmationNavegation();
-  //   // alert(data.message)
-  // })
+  const { modalMoreDetails, modalMaterial, usuarioLogin, modalCorrespondencia, modalCajaChica, modalCajaChicaDocumento, modalDocumentoGeneradoCorrespondencia, modalContraseña, changeStateModalContraseña } = useProyect();
 
   useEffect(()=>{
     if (usuarioLogin.resetear === '1') {
       changeStateModalContraseña(true)
     }
   },[usuarioLogin])
+
   if (!Boolean(usuarioLogin)) return <SinPermisos />
   if (usuarioLogin.tipo == 'administrativo') {
     return (
@@ -90,21 +76,10 @@ export default function Layout() {
           <ModalDocumento />
         </Modal>
 
-        <Modal isOpen={modalColaboradores} style={customStyles}>
-          <ModalColaboradores />
-        </Modal>
-
-        <Modal isOpen={modalRespuesta} style={customStyles}>
-          <ModalRespuesta />
-        </Modal>
-
         <Modal isOpen={modalDocumentoGeneradoCorrespondencia} style={customStyles}>
           <ModalDocumentoGeneradoCorrespondencia />
         </Modal>
 
-        <Modal isOpen={modalNavegacion} style={customStyles}>
-          <ModalConfirmarNavegacion />
-        </Modal>
         <ToastContainer />
       </>
     )

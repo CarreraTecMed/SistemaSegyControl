@@ -10,7 +10,7 @@ class Correspondence extends Model
     protected $fillable = [
         'unit_id',
         "fechaCreacion",
-        "hojaDeRuta",
+        "identificador",
         "nombre",
         "descripcion",
         "documento",

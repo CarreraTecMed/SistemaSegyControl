@@ -18,15 +18,6 @@ export default function EstudianteOpciones() {
                 </svg>
                 Materiales
             </Link>
-            {/* <Link
-                className="text-center bg-teal-600 shadow-lg hover:bg-teal-700 w-full p-3 font-bold text-white truncate rounded-xl max-md:w-96 max-sm:w-full"
-                to="/estudiante/correspondencia"
-                onClick={() => {
-                    changeView('correspondencia')
-                }}
-            >
-                Correspondencia
-            </Link> */}
         </div>
     )
 }

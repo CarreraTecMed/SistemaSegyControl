@@ -29,11 +29,7 @@ import ReestablecerContraseña from './views/ReestablecerContraseña'
 import Inicio from './views/Inicio'
 import CorrespondenciaRecibida from './views/CorrespondenciaRecibida'
 import CorrespondenciaDespachada from './views/CorrespondenciaDespachada'
-import Colaboradores from './views/Colaboradores'
-import CorrespondenciaGeneral from './views/CorrespondenciaGeneral'
-import ColaboradorEstudiante from './views/ColaboradorEstudiante'
 import DirectorCajaChica from './views/DirectorCajaChica'
-import ColaboradorLayout from './layout/ColaboradorLayout'
 import MensajeConfirmacion from './components/MensajeConfirmacion'
 import UsuariosActivar from './views/UsuariosActivar'
 import HistorialCajaChica from './views/HistorialCajaChica'
@@ -248,33 +244,11 @@ const router = createBrowserRouter([
                 element: <MaterialesPrestamos />
             },
             {
-                path:'/estudiante/correspondencia',
-                element: <CorrespondenciaGeneral />
-            },
-            {
-                path:'/estudiante/correspondencia/responder/:id',
-                element: <ColaboradorEstudiante />
-            },
-            {
                 path:'/estudiante/editarDatos',
                 element:<EditarDatos />
             }
         ]
     },
-    // {
-    //     path: '/colaborador',
-    //     element: <ColaboradorLayout />,
-    //     children: [
-    //         {
-    //             path:'/colaborador/correspondencia',
-    //             element: <CorrespondenciaGeneral />
-    //         },
-    //         {
-    //             path:'/colaborador/correspondencia/responder/:id',
-    //             element: <ColaboradorEstudiante />
-    //         }
-    //     ]
-    // },
     {
         path:'/sin-permiso',
         element: <MensajeConfirmacion />

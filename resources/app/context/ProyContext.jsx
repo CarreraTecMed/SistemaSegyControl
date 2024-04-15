@@ -19,11 +19,8 @@ const ProyProvider = ({ children }) => {
     const [modalMaterial, setModalMaterial] = useState(false)
     const [menuMateriales, setMenuMateriales] = useState(false);
     const [modalMoreDetails, setModalMoreDetails] = useState(false);
-    const [modalColaboradores, setModalColaboradores] = useState(false);
     const [modalContraseña, setModalContraseña] = useState(false);
-    const [modalRespuesta, setModalRespuesta] = useState(false);
     const [modalDocumentoGeneradoCorrespondencia, setModalDocumentoGeneradoCorrespondencia] = useState(false);
-    const [modalNavegacion, setModalNavegacion] = useState(false);
     const [filtrado, setFiltrado] = useState('');
 
     const [documentoElegido, setDocumentoElegido] = useState({});
@@ -52,9 +49,6 @@ const ProyProvider = ({ children }) => {
         setView(viewWord)
     }
 
-    const changeConfirmationNavegation = () => {
-        setModalNavegacion(!modalNavegacion)
-    }
     const changeStateModalCorrespondencia = () => {
         setModalCorrespondencia(!modalCorrespondencia)
     }
@@ -72,9 +66,6 @@ const ProyProvider = ({ children }) => {
     }
     const changeStateModalMaterial = () => {
         setModalMaterial(!modalMaterial)
-    }
-    const changeStateModalRespuesta = () => {
-        setModalRespuesta(!modalRespuesta)
     }
 
     const changeStateModalContraseña = () => {
@@ -972,8 +963,6 @@ const ProyProvider = ({ children }) => {
             modalColaboradores,
             modalMaterial,
             modalMoreDetails,
-            modalRespuesta,
-            modalNavegacion,
             pedido,
             pedidoUrl,
             pedidos,
@@ -988,7 +977,6 @@ const ProyProvider = ({ children }) => {
             agregarColaborador,
             aumentarPedido,
             changeView,
-            changeConfirmationNavegation,
             crearCorrespondencia,
             crearCustodio,
             crearGasto,
@@ -1006,7 +994,6 @@ const ProyProvider = ({ children }) => {
             changeStateModalCorrespondencia,
             changeStateModalDocumentoGenerado,
             changeStateModalMaterial,
-            changeStateModalRespuesta,
             changeStateModalContraseña,
             changeViewMenu,
             confirmarPrestamo,

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->date('fechaCreacion');
-            $table->string('hojaDeRuta');
+            $table->string('identificador');
             $table->string('descripcion',500);
             $table->string('estado');
             $table->string('estadoAnterior')->nullable();

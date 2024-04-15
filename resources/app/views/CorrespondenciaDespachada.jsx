@@ -191,7 +191,7 @@ export default function CorrespondenciaDespachada() {
                                         {correspondencia.unit.nombre}
                                     </td>
                                     <td className="p-2">
-                                        {correspondencia.hojaDeRuta}
+                                        {correspondencia.identificador}
                                     </td>
                                     <td className="p-2">
                                         {correspondencia.descripcion}

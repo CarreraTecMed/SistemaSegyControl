@@ -26,7 +26,7 @@ class CorrespondenceResource extends JsonResource
             'estado' => $this->estado,
             'fechaCreacion' => $this->created_at,
             'fechaEntregado' => $this->fechaEntregado,
-            'hojaDeRuta' => $this->hojaDeRuta,
+            'identificador' => $this->identificador,
             'id' => $this->id,
             'nombre' => $this->nombre,
             'receptor' => $this->receptor,
