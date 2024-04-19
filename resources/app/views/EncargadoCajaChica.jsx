@@ -19,7 +19,9 @@ export default function EncargadoCajaChica() {
   }).then(data => data.data)
 
   const { data, error, isLoading } = useSWR('/api/managers', fetcher, {
-    refreshInterval: 1000
+    revalidateOnFocus: true,
+    revalidateIfStale: false,
+    revalidateOnReconnect: false
   })
 
   if (isLoading) return <div className="h-32"><Cargando /></div>

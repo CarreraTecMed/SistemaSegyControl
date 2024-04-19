@@ -60,15 +60,6 @@ class UserController extends Controller
             $namePerfil = Str::random(36) . '.' . $extension;
             Storage::disk('local')->put('/public/perfiles/' . $namePerfil, file_get_contents($perfil));
             $estado = 'activo';
-            //Crear el usuario y estudiante
-            if ($data['tipo'] === 'administrativo') {
-                $estado = 'Sin activar';
-            }
-
-            if ($data['tipo'] === 'colaborador') {
-                $estado = 'Sin activar';
-            }
-
             $user = User::create([
                 'ci' => $data['ci'],
                 'nombres' => $data['name'],

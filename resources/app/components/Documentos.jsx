@@ -18,10 +18,13 @@ export default function Documentos({ id: correspondenciaId }) {
         headers: {
             Authorization: `Bearer ${token}`
         }
-    }).then(data => data.data)
+    },).then(data => data.data)
 
     const { data, error, isLoading } = useSWR('/api/users', fetcher, {
-        refreshInterval: 1000
+        refreshInterval: 0,
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
 

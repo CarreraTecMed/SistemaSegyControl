@@ -25,7 +25,7 @@ const customStyles = {
 
 export default function StudentLayout() {
 
-  const { modalMaterial, usuarioLogin, modalCorrespondencia, modalRespuesta, modalContraseña, changeStateModalContraseña } = useProyect();
+  const { modalMaterial, usuarioLogin, modalCorrespondencia, modalContraseña, changeStateModalContraseña } = useProyect();
   
   useEffect(()=>{
     if (usuarioLogin.resetear === '1') {
@@ -57,9 +57,6 @@ export default function StudentLayout() {
           <ModalDocumento />
         </Modal>
 
-        <Modal isOpen={modalRespuesta} style={customStyles}>
-          <ModalRespuesta/>
-        </Modal>
         <ToastContainer />
       </>
     )

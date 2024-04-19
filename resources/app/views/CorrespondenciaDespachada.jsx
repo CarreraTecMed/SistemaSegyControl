@@ -27,7 +27,7 @@ const customStyles = {
 export default function CorrespondenciaDespachada() {
 
 
-    const { changeStateModalCorrespondencia, eliminarCorrespondencia, setDocumentoElegido, setFechasDocumento,changeStateModalDocumentoGenerado, filtrado } = useProyect();
+    const { changeStateModalCorrespondencia, eliminarCorrespondencia, setDocumentoElegido, setFechasDocumento,changeStateModalDocumentoGenerado, filtrado, changeView } = useProyect();
     const navigate = useNavigate();
     const [dateOne, setDateOne] = useState('');
     const [dateTwo, setDateTwo] = useState('');
@@ -44,8 +44,10 @@ export default function CorrespondenciaDespachada() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/correspondences/despachada', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/correspondences/despachada', fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -66,6 +68,11 @@ export default function CorrespondenciaDespachada() {
         }
     }, [isLoading, data])
 
+    useEffect(()=>{
+        changeView('correspondencia despachada')
+        mutate()
+    },[])
+    
     if (isLoading) return <Cargando />
 
     const handleDelete = (nombre, id) => {
@@ -82,6 +89,7 @@ export default function CorrespondenciaDespachada() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarCorrespondencia(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,
@@ -125,6 +133,8 @@ export default function CorrespondenciaDespachada() {
             changeStateModalDocumentoGenerado()
         }
     }
+
+
     return (
         <>
             <Encabezado />
@@ -159,7 +169,7 @@ export default function CorrespondenciaDespachada() {
                                 Unidad
                             </th>
                             <th scope="col" className="p-2">
-                                Hoja de ruta
+                                Identificador
                             </th>
                             <th scope="col" className="p-2">
                                 Observaciones

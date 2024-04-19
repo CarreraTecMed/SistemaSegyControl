@@ -13,7 +13,7 @@ export default function Usuarios() {
     const [apiItems, setApiItems] = useState([]);
     const [filteredItems, setFilteredItems] = useState([])
 
-    const { filtrado, eliminarUsuario, resetearContraseñaUsuario } = useProyect();
+    const { filtrado, eliminarUsuario, resetearContraseñaUsuario, changeView } = useProyect();
     const navigate = useNavigate();
     const token = localStorage.getItem('AUTH_TOKEN')
 
@@ -23,8 +23,10 @@ export default function Usuarios() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/users', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/users', fetcher, {
+        revalidateOnFocus: true,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -42,6 +44,10 @@ export default function Usuarios() {
         }
     }, [isLoading, data])
 
+    useEffect(() => {
+        changeView('usuarios')
+        mutate()
+    }, [])
     if (isLoading) return <Cargando />
 
     const handleDelete = (nombre, id) => {
@@ -58,6 +64,7 @@ export default function Usuarios() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarUsuario(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

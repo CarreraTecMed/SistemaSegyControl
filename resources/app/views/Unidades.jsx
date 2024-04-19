@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 export default function Unidades() {
 
-    const { eliminarUnidad, filtrado } = useProyect();
+    const { eliminarUnidad, filtrado, changeView } = useProyect();
     const navigate = useNavigate();
 
     const [apiItems, setApiItems] = useState([]);
@@ -22,8 +22,10 @@ export default function Unidades() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/units', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/units', fetcher, {
+        revalidateOnFocus: true,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -40,6 +42,10 @@ export default function Unidades() {
         }
     }, [isLoading, data])
 
+    useEffect(() => {
+        changeView('unidades')
+        mutate()
+    }, [])
     if (isLoading) return <Cargando />
 
     const handleDelete = (nombre, id) => {
@@ -56,6 +62,7 @@ export default function Unidades() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarUnidad(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

@@ -8,7 +8,7 @@ export default function CajaChicaAdmin() {
         <>
             <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between p-3 rounded-lg shadow-2xl bg-white">
                 <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between w-full lg:mr-5">
-                    <p className="font-black md:text-4xl text-3xl text-blue-900 capitalize md:mr-3">Caja Chica</p>
+                    <p className="font-black md:text-4xl text-3xl text-blue-950 capitalize md:mr-3">Caja Chica</p>
                 </div>
             </div>
             <div className="relative overflow-x-auto pt-5">

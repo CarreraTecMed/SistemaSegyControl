@@ -25,11 +25,13 @@ export default function HistorialCajaChica() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/moneybox/history', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/moneybox/history', fetcher, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
-    if (isLoading) return <Cargando />
+    
     const handleDocument = (e) => {
         e.preventDefault();
 
@@ -88,11 +90,17 @@ export default function HistorialCajaChica() {
         }
         confirmar();
     };
+
+    useEffect(()=>{
+        mutate()
+    },[])
+    if (isLoading) return <Cargando />
+    
     return (
         <>
             <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between p-2 rounded-lg shadow-2xl bg-white">
                 <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between w-full lg:mr-5">
-                    <p className="font-black md:text-4xl text-3xl text-blue-900 capitalize md:mr-3">
+                    <p className="font-black md:text-4xl text-3xl text-blue-950 capitalize md:mr-3">
                         Historial Caja Chica
                     </p>
                     <div className="flex gap-2">

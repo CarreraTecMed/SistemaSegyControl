@@ -6,10 +6,11 @@ import useProyect from "../hooks/useProyect";
 import Cargando from "../components/Cargando";
 import Swal from "sweetalert2";
 import { convertirFecha } from "../helpers/CajaChica";
+import { useEffect } from "react";
 
 export default function RecuperarCorrespondencia() {
 
-  const { recuperarCorrespondencia, confirmarEliminarCorrespondencia } = useProyect();
+  const { recuperarCorrespondencia, confirmarEliminarCorrespondencia, changeView } = useProyect();
 
   const token = localStorage.getItem('AUTH_TOKEN')
 
@@ -19,9 +20,16 @@ export default function RecuperarCorrespondencia() {
     }
   }).then(data => data.data)
 
-  const { data, error, isLoading } = useSWR('/api/correspondences/recover', fetcher, {
-    refreshInterval: 1000
+  const { data, error, isLoading,  mutate } = useSWR('/api/correspondences/recover', fetcher, {
+    revalidateOnFocus: true,
+    revalidateIfStale: false,
+    revalidateOnReconnect: false
   })
+
+  useEffect(() => {
+    changeView('correspondencia eliminada')
+    mutate()
+  }, [])
 
   if (isLoading) return <Cargando />
   const correspondencias = data.data
@@ -40,6 +48,7 @@ export default function RecuperarCorrespondencia() {
           const respuesta = await confirmarEliminarCorrespondencia(id);
 
           if (Boolean(respuesta)) {
+            mutate()
             Swal.fire({
               title: "Se realizo con exito!",
               text: respuesta,

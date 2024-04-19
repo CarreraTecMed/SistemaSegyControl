@@ -2,19 +2,16 @@ import { useEffect, useState } from "react";
 import Cargando from "../components/Cargando";
 import Encabezado from "../components/Encabezado";
 import useProyect from "../hooks/useProyect";
-import { useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import clienteAxios from "../config/axios";
 import Swal from 'sweetalert2'
 
 export default function Materiales() {
 
-    const { showDetails, eliminarPrestamo, obtenerPrestamo, filtrado } = useProyect();
+    const { showDetails, eliminarPrestamo, obtenerPrestamo, filtrado, changeView} = useProyect();
 
     const [apiItems, setApiItems] = useState([]);
     const [filteredItems, setFilteredItems] = useState([])
-
-
     const token = localStorage.getItem('AUTH_TOKEN')
 
     const fetcher = () => clienteAxios('/api/orders', {
@@ -23,8 +20,10 @@ export default function Materiales() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/orders', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/orders', fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
     })
 
     useEffect(() => {
@@ -34,12 +33,18 @@ export default function Materiales() {
         setFilteredItems(itemsFiltrados);
     }, [filtrado])
 
+
     useEffect(() => {
         if (!isLoading) {
             setApiItems(data.data)
             setFilteredItems(data.data)
         }
     }, [isLoading, data])
+
+    useEffect(()=>{
+        changeView('materiales')
+        mutate()
+    },[])
 
     if (isLoading) return <Cargando />
 
@@ -55,8 +60,10 @@ export default function Materiales() {
         }).then((result) => {
             if (result.isConfirmed) {
                 const mostrarRespuesta = async () => {
+                    console.log(id)
                     const respuesta = await eliminarPrestamo(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

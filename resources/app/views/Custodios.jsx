@@ -5,6 +5,7 @@ import clienteAxios from "../config/axios";
 import useProyect from "../hooks/useProyect";
 import Cargando from "../components/Cargando";
 import Swal from "sweetalert2";
+import { useEffect } from "react";
 
 export default function Custodios() {
 
@@ -19,10 +20,15 @@ export default function Custodios() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/interesteds', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/interesteds', fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
+    useEffect(()=>{
+        mutate()
+    },[])
     if (isLoading) return <div className="h-32"><Cargando /></div>
 
     const custodios = data.data
@@ -42,6 +48,7 @@ export default function Custodios() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarCustodio(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

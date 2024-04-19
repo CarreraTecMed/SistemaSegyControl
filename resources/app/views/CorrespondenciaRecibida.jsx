@@ -18,7 +18,8 @@ export default function CorrespondenciaRecibida() {
         setDocumentoElegido,
         changeStateModalDocumentoGenerado,
         setFechasDocumento,
-        filtrado
+        filtrado,
+        changeView
     } = useProyect();
 
     const navigate = useNavigate();
@@ -42,8 +43,10 @@ export default function CorrespondenciaRecibida() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/correspondences/received', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/correspondences/received', fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -62,6 +65,11 @@ export default function CorrespondenciaRecibida() {
         }
     }, [isLoading, data])
 
+    useEffect(()=>{
+        changeView('correspondencia recibida')
+        mutate()
+    },[])
+    
     if (isLoading) return <Cargando />
     
     const handleDelete = (nombre, id) => {

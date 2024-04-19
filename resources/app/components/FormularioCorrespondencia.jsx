@@ -80,7 +80,11 @@ export default function FormularioCorrespondencia() {
     )
 
 
-    const { data, error, isLoading } = useSWR(url, fetcher, {})
+    const { data, error, isLoading, mutate } = useSWR(url, fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
+    })
 
     useEffect(() => {
         if (pathname.includes('recibida')) {
@@ -113,6 +117,9 @@ export default function FormularioCorrespondencia() {
         }
     }, [isLoading, data])
 
+    useEffect(()=>{
+        mutate()
+    },[])
     if (isLoading) return <Cargando />
     
     return (

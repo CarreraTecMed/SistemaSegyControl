@@ -6,7 +6,7 @@ export default function AdministradorOpciones() {
     const { changeView } = useProyect();
 
     return (
-        <div className="my-5 px-5 flex flex-col gap-3">
+        <div className="my-5 px-5 flex flex-col gap-3 items-center">
             <Link
                 className="text-centerw-full p-3 font-bold text-white hover:text-yellow-500 truncate rounded-xl max-md:w-96 max-sm:w-full flex gap-1 items-center justify-center"
                 to="/administrador/usuarios"

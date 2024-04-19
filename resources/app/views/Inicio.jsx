@@ -27,6 +27,7 @@ export default function Inicio() {
             }
         }
     }, [])
+
     return (
         <>
             <div className="min-w-screen min-h-screen flex md:flex-row flex-col-reverse justify-center items-center bg-gradient-to-r from-slate-900 to-slate-700 gap-5 p-6">

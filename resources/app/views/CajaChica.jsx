@@ -10,7 +10,7 @@ import { convertirFechaSinHora } from "../helpers/CajaChica";
 
 export default function CajaChica() {
 
-    const { changeStateModalCajaChica, eliminarGasto, setGastoElegido, filtrado } = useProyect();
+    const { changeStateModalCajaChica, eliminarGasto, setGastoElegido, filtrado, changeView } = useProyect();
     const navigate = useNavigate();
 
     const token = localStorage.getItem('AUTH_TOKEN')
@@ -24,8 +24,10 @@ export default function CajaChica() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/moneybox', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/moneybox', fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
     })
 
     useEffect(() => {
@@ -43,6 +45,11 @@ export default function CajaChica() {
         }
     }, [isLoading, data])
 
+    useEffect(() => {
+        changeView('caja chica')
+        mutate()
+    }, [])
+
     if (isLoading) return <Cargando />
     const handleDelete = (nombre, id) => {
         Swal.fire({
@@ -58,6 +65,7 @@ export default function CajaChica() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarGasto(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

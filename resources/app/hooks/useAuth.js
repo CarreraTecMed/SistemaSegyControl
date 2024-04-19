@@ -8,7 +8,7 @@ import CryptoJS from "crypto-js"
 
 export const useAuth = () => {
 
-    const { setUsuarioLogin, setCargando, usuarioLogin, changeView } = useProyect()
+    const { setUsuarioLogin, setCargando, changeView } = useProyect()
     const token = localStorage.getItem('AUTH_TOKEN')
     const navigate = useNavigate()
 
@@ -24,7 +24,13 @@ export const useAuth = () => {
             .catch(error => {
                 throw Error(error?.response?.data?.errors)
             })
-    ))
+    ), {
+        refreshInterval: 0,
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
+    })
+
 
     const login = async (datos, setErrores) => {
         try {
@@ -35,7 +41,7 @@ export const useAuth = () => {
                 return
             }
 
-            const informacionEncriptada = CryptoJS.AES.encrypt(JSON.stringify(data.user),'secret_key')
+            const informacionEncriptada = CryptoJS.AES.encrypt(JSON.stringify(data.user), 'secret_key')
             localStorage.setItem('AUTH_TOKEN', data.token)
             localStorage.setItem('usuario', informacionEncriptada)
             setErrores([])
@@ -84,7 +90,7 @@ export const useAuth = () => {
                 return
             }
 
-            const informacionEncriptada = CryptoJS.AES.encrypt(JSON.stringify(data.user),'secret_key')
+            const informacionEncriptada = CryptoJS.AES.encrypt(JSON.stringify(data.user), 'secret_key')
             localStorage.setItem('AUTH_TOKEN', data.token)
             localStorage.setItem('usuario', informacionEncriptada)
             setUsuarioLogin(data.user)
@@ -110,7 +116,7 @@ export const useAuth = () => {
         } catch (error) {
             console.log(error)
             setErrores(Object.values(error?.response?.data?.errors || []))
-            window.scrollTo({top:0, behavior:'smooth'})
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         } finally {
             setCargando(false);
         }
@@ -131,8 +137,9 @@ export const useAuth = () => {
             setUsuarioLogin({})
             changeView('')
             navigate('/')
+            localStorage.removeItem('pusherTransportTLS')
         } catch (error) {
-            throw Error(error?.response?.data?.errors)
+            console.log(error)
         }
     }
 

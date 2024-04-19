@@ -20,7 +20,12 @@ export default function Notificaciones() {
         })
     )
 
-    const { data, error, isLoading } = useSWR(`/api/correspondences/notifications`, fetcher, {refreshInterval:1000})
+    const { data, error, isLoading } = useSWR(`/api/correspondences/notifications`, fetcher, {
+        refreshInterval: 0,
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+    })
 
     useEffect(() => {
         if (!isLoading) {

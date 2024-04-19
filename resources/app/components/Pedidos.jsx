@@ -1,14 +1,15 @@
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { mutate } from 'swr';
 import useProyect from '../hooks/useProyect'
 import Pedido from './Pedido';
 import Alerta from './Alerta';
-
+import { useNavigate } from 'react-router-dom';
 
 export default function Pedidos({ docente, setDocente, materia, setMateria }) {
 
-    const { menuMateriales, pedido, realizarPedido, usuarioLogin, changeViewMenu } = useProyect();
-
+    const { menuMateriales, pedido, realizarPedido, usuarioLogin, changeViewMenu, cargando } = useProyect();
+    const navigate = useNavigate()
     const [errores, setErrores] = useState([]);
     let erroresEncontrados = [];
     const handleSubmit = async () => {
@@ -38,6 +39,9 @@ export default function Pedidos({ docente, setDocente, materia, setMateria }) {
                 changeViewMenu();
                 setMateria('')
                 setDocente('')
+                if (usuarioLogin.tipo === 'administrativo') {
+                    navigate('/administrativo/materiales')
+                }
             }
         }
     }
@@ -71,7 +75,7 @@ export default function Pedidos({ docente, setDocente, materia, setMateria }) {
             }
             <p className='mt-3'>Docente: <span className='font-bold'>{docente?.nombreCompleto}</span></p>
             <p className='my-3'>Materia: <span className='font-bold'>{materia?.nombre}</span></p>
-            <button type="button" className='font-black bg-blue-600 hover:bg-blue-700 text-white w-full p-2 rounded-lg' onClick={handleSubmit}>Realizar pedido</button>
+            <button type="button" className='font-black bg-blue-600 hover:bg-blue-700 text-white w-full p-2 rounded-lg' onClick={handleSubmit} disabled={cargando}>Realizar pedido</button>
         </div>
     )
 }

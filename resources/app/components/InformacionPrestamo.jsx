@@ -1,6 +1,7 @@
 import useProyect from "../hooks/useProyect"
 import Cargando from "./Cargando"
 import { useEffect, useState } from "react";
+import { useSWRConfig } from "swr";
 
 export default function InformacionPrestamo() {
 
@@ -9,6 +10,8 @@ export default function InformacionPrestamo() {
 
   const { usuario, docente, materia, materiales, id: idPedido, descripcion: descripcionPedido } = pedidoUrl;
 
+  const { mutate } = useSWRConfig()
+
   useEffect(() => {
     if (descripcionPedido?.length != 0) {
       setDescripcion(descripcionPedido)
@@ -16,8 +19,8 @@ export default function InformacionPrestamo() {
   }, [descripcionPedido])
 
   const handleSubmit = async () => {
-    
     await confirmarPrestamo({ idPedido, descripcion, materiales })
+    mutate('/api/orders')
     showDetails()
   }
 

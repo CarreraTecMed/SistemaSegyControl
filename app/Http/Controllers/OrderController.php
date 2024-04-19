@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewResponseEvent;
 use App\Http\Resources\OrderCollection;
 use App\Http\Resources\OrderResource;
 use App\Models\Material;
 use App\Models\Order;
 use App\Models\OrderMaterial;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -50,6 +52,8 @@ class OrderController extends Controller
             }
 
             DB::commit();
+            $user = User::find($request->usuarioId);
+            event(new NewResponseEvent($user->tipo));
             return [
                 'message' => 'Pedido realizado con exito, dirigase a dirección'
             ];
@@ -63,7 +67,7 @@ class OrderController extends Controller
 
     public function getOrders()
     {
-        return new OrderCollection(Order::with('user')->with('teacher')->with('subject')->with('materials')->get());
+        return new OrderCollection(Order::with('user')->with('teacher')->with('subject')->with('materials')->orderByDesc('created_at')->get());
     }
 
     public function getOrderId($id)
@@ -102,17 +106,16 @@ class OrderController extends Controller
     public function deleteOrder($id)
     {
 
-        $order = Order::find($id)->with('materials')->get();
-
-        foreach ($order[0]->materials as $material) {
+        $order = Order::where('id',$id)->with('materials')->first();
+        foreach ($order->materials as $material) {
             $materialDataBase = Material::find($material['id']);
-            if ($order[0]->estado !== 'Finalizado') {
+            if ($order->estado !== 'Finalizado') {
                 $materialDataBase->cantidad_utilizada += $material->pivot->cantidad;
                 $materialDataBase->save();
             }
         }
 
-        $order[0]->delete();
+        $order->delete();
 
         return [
             "message" => "Prestamo eliminado con exito"

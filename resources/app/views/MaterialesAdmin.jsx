@@ -9,7 +9,7 @@ import { useState,useEffect } from "react";
 
 export default function MaterialesAdmin() {
 
-    const { eliminarMaterial,filtrado } = useProyect();
+    const { eliminarMaterial,filtrado, changeView } = useProyect();
     const navigate = useNavigate();
 
     const [apiItems, setApiItems] = useState([]);
@@ -23,8 +23,10 @@ export default function MaterialesAdmin() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/materials', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/materials', fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -41,6 +43,10 @@ export default function MaterialesAdmin() {
         }
     }, [isLoading, data])
 
+    useEffect(()=>{
+        changeView('materiales')
+        mutate()
+    },[])
     if (isLoading) return <Cargando />
     
     const handleDelete = (nombre, id) => {
@@ -57,6 +63,7 @@ export default function MaterialesAdmin() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarMaterial(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

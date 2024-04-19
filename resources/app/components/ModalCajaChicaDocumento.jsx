@@ -14,7 +14,11 @@ export default function ModalCajaChicaDocumento() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR(`/api/moneybox/${dateOne}/${dateTwo}`, fetcher)
+    const { data, error, isLoading } = useSWR(`/api/moneybox/${dateOne}/${dateTwo}`, fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
+    })
 
     if (isLoading) return <Cargando />
 

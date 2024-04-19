@@ -36,6 +36,7 @@ import HistorialCajaChica from './views/HistorialCajaChica'
 import RecuperarCorrespondencia from './views/RecuperarCorrespondencia'
 import Notificaciones from './views/Notificaciones'
 import EditarDatos from './views/EditarDatos'
+import PaginaErronea from './views/PaginaErronea'
 
 const router = createBrowserRouter([
     {
@@ -71,10 +72,6 @@ const router = createBrowserRouter([
             {
                 path:'/administrativo/correspondencia-recibida',
                 element: <CorrespondenciaRecibida />
-            },
-            {
-                path:'/administrativo/correspondencia-recibida/:id/colaboradores',
-                element: <Colaboradores />
             },
             {
                 path:'/administrativo/correspondencia-recibida/nuevo',
@@ -252,6 +249,10 @@ const router = createBrowserRouter([
     {
         path:'/sin-permiso',
         element: <MensajeConfirmacion />
+    },
+    {
+        path:'/*',
+        element: <PaginaErronea />
     }
 ])
 

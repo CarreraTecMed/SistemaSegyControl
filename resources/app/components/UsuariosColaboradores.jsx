@@ -8,7 +8,7 @@ import Swal from 'sweetalert2'
 export default function UsuariosColaboradores() {
 
     const params = useParams();
-    
+
     const { usuarioLogin, agregarColaborador } = useProyect();
 
     const token = localStorage.getItem('AUTH_TOKEN')
@@ -20,7 +20,10 @@ export default function UsuariosColaboradores() {
     }).then(data => data.data)
 
     const { data, error, isLoading } = useSWR(`/api/collaborators-available/${params.id}`, fetcher, {
-        refreshInterval: 1000
+        refreshInterval: 0,
+        revalidateOnFocus: true,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
 

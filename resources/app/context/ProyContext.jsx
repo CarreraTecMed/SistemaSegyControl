@@ -79,10 +79,6 @@ const ProyProvider = ({ children }) => {
         setModalMoreDetails(!modalMoreDetails)
     }
 
-    const showCollaborators = () => {
-        setModalColaboradores(!modalColaboradores)
-    }
-
     //Correspondence
 
     const crearCorrespondencia = async (correspondence, setErrores) => {
@@ -391,6 +387,7 @@ const ProyProvider = ({ children }) => {
         setCargando(true)
         const token = localStorage.getItem('AUTH_TOKEN')
 
+        console.log(id, 'desde eliminar prestamos')
         try {
 
             const { data } = await clienteAxios.delete(`/api/orders/${id}`, {
@@ -398,7 +395,6 @@ const ProyProvider = ({ children }) => {
                     Authorization: `Bearer ${token}`
                 }
             })
-            console.log(data)
             return data.message
         } catch (error) {
             console.log(error)
@@ -425,23 +421,23 @@ const ProyProvider = ({ children }) => {
         }
     }
 
-    const obtenerPrestamos = async () => {
-        setCargando(true);
-        const token = localStorage.getItem('AUTH_TOKEN')
-        try {
+    // const obtenerPrestamos = async () => {
+    //     setCargando(true);
+    //     const token = localStorage.getItem('AUTH_TOKEN')
+    //     try {
 
-            const { data } = await clienteAxios('/api/orders', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            setPedidos(data.data);
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setCargando(false)
-        }
-    }
+    //         const { data } = await clienteAxios('/api/orders', {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`
+    //             }
+    //         })
+    //         setPedidos(data.data);
+    //     } catch (error) {
+    //         console.log(error)
+    //     } finally {
+    //         setCargando(false)
+    //     }
+    // }
 
     //Usuarios
 
@@ -960,7 +956,6 @@ const ProyProvider = ({ children }) => {
             modalDocumentoGeneradoCorrespondencia,
             modalCorrespondencia,
             modalContraseña,
-            modalColaboradores,
             modalMaterial,
             modalMoreDetails,
             pedido,
@@ -1021,7 +1016,7 @@ const ProyProvider = ({ children }) => {
             eliminarUsuario,
             eliminarUnidad,
             obtenerPrestamo,
-            obtenerPrestamos,
+            // obtenerPrestamos,
             obtenerUnidades,
             realizarPedido,
             recuperarCorrespondencia,
@@ -1040,7 +1035,6 @@ const ProyProvider = ({ children }) => {
             setUsuarioCreador,
             setRespuestaNavegacion,
             showDetails,
-            showCollaborators
         }}>
             {children}
         </ProyContext.Provider>

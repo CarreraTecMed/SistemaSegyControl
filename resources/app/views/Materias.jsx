@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 
 export default function Materias() {
 
-    const { eliminarMateria, filtrado } = useProyect();
+    const { eliminarMateria, filtrado, changeView } = useProyect();
     const navigate = useNavigate();
 
     const [apiItems, setApiItems] = useState([]);
@@ -23,8 +23,10 @@ export default function Materias() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/subjects', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/subjects', fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -41,6 +43,10 @@ export default function Materias() {
         }
     }, [isLoading, data])
 
+    useEffect(()=>{
+        changeView('materias')
+        mutate()
+    },[])
     if (isLoading) return <Cargando />
 
     const handleDelete = (nombre, id) => {
@@ -57,6 +63,7 @@ export default function Materias() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarMateria(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

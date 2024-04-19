@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router-dom'
-import { ToastContainer} from 'react-toastify';
+import { Outlet, useNavigate } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
 
@@ -14,7 +14,9 @@ import ModalCajaChicaDocumento from '../components/ModalCajaChicaDocumento';
 import ModalDocumento from '../components/ModalDocumento';
 import ModalDocumentoGeneradoCorrespondencia from '../components/ModalDocumentoGeneradoCorrespondencia';
 import ModalRecuperarContraseña from '../components/ModalRecuperarContraseña';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import Pusher from 'pusher-js';
+import { useSWRConfig } from 'swr';
 
 
 const customStyles = {
@@ -33,12 +35,43 @@ Modal.setAppElement('#root')
 
 export default function Layout() {
   const { modalMoreDetails, modalMaterial, usuarioLogin, modalCorrespondencia, modalCajaChica, modalCajaChicaDocumento, modalDocumentoGeneradoCorrespondencia, modalContraseña, changeStateModalContraseña } = useProyect();
-
-  useEffect(()=>{
+  const { mutate } = useSWRConfig()
+  const navigate = useNavigate()
+  useEffect(() => {
     if (usuarioLogin.resetear === '1') {
       changeStateModalContraseña(true)
     }
-  },[usuarioLogin])
+  }, [usuarioLogin])
+
+  useEffect(() => {
+
+    if ('Notification' in window) {
+      Notification.requestPermission()
+    }
+
+    const pusher = new Pusher('cb26bf8979e3aa7ae571', {
+      cluster: 'us2',
+      debug: true
+    });
+
+
+    const channel = pusher.subscribe('my-channel')
+
+    channel.bind('event-notification', (data) => {
+      if (data.user === 'estudiante') {
+        const notification = new Notification('Nuevo prestamo de material')
+        notification.onclick = () => {
+          navigate('/administrativo/materiales')
+          console.log('clickeando')
+        }
+        mutate('/api/orders')
+      }
+    })
+
+    return () => {
+      pusher.disconnect()
+    }
+  }, [])
 
   if (!Boolean(usuarioLogin)) return <SinPermisos />
   if (usuarioLogin.tipo == 'administrativo') {

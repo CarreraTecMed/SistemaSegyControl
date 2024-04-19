@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import useProyect from "../hooks/useProyect";
 import { useState, useEffect } from "react";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 import Cargando from "./Cargando";
 import clienteAxios from "../config/axios";
@@ -12,6 +12,7 @@ export default function FormularioCajaChica() {
     const params = useParams();
     const { id } = params
     const navigate = useNavigate();
+    const { mutate } = useSWRConfig()
 
     const [errores, setErrores] = useState([])
 
@@ -41,9 +42,7 @@ export default function FormularioCajaChica() {
         return Promise.all(urls.map(url => f(url)))
     }
 
-    const { data, error, isLoading, mutate } = useSWR(urls, fetcher, {
-        refreshInterval: 1000
-    })
+    const { data, error, isLoading } = useSWR(urls, fetcher)
 
     const handleSubmit = async (e) => {
         let resultado = false
@@ -65,6 +64,7 @@ export default function FormularioCajaChica() {
         }
         if (resultado) {
             navigate('/administrativo/caja-chica');
+            mutate('/api/moneybox')
         }
     }
     useEffect(() => {
@@ -77,7 +77,7 @@ export default function FormularioCajaChica() {
             setEntidad(data[1].interested.id)
         }
 
-    }, [isLoading,data])
+    }, [isLoading, data])
 
     useEffect(() => {
         if (Boolean(id) === false && !isLoading) {
@@ -106,8 +106,8 @@ export default function FormularioCajaChica() {
                                 <div className="flex items-center gap-1 justify-center">
                                     <label className="text-gray-200" htmlFor="si">Si
                                     </label>
-                                    <input 
-                                        className="rounded-lg bg-gray-500 focus:border-blue-500 focus:bg-gray-800 focus:outline-none h-4 w-4 " 
+                                    <input
+                                        className="rounded-lg bg-gray-500 focus:border-blue-500 focus:bg-gray-800 focus:outline-none h-4 w-4 "
                                         type="checkbox"
                                         value={'si'}
                                         checked={ingreso === 'si'}
@@ -117,8 +117,8 @@ export default function FormularioCajaChica() {
                                 <div className="flex items-center gap-1 justify-center">
                                     <label className="text-gray-200" htmlFor="no">No
                                     </label>
-                                    <input 
-                                        className="rounded-lg bg-gray-700 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white h-4 w-4" 
+                                    <input
+                                        className="rounded-lg bg-gray-700 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white h-4 w-4"
                                         type="checkbox"
                                         value={'no'}
                                         checked={ingreso === 'no'}

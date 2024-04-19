@@ -28,7 +28,9 @@ export default function FormularioDocente() {
     )
 
     const { data, error, isLoading, mutate } = useSWR(() => id ? `/api/teachers/${id}` : null, fetcher, {
-        refreshInterval: 1000
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -36,7 +38,7 @@ export default function FormularioDocente() {
             setNombreCompleto(data.data.nombreCompleto)
             setGradoAcademico(data.data.gradoAcademico)
         }
-    }, [isLoading])
+    }, [isLoading, data])
 
     const handleSubmit = async (e) => {
         let resultado = false
@@ -47,7 +49,6 @@ export default function FormularioDocente() {
         }
         if (id) {
             resultado = await editarDocente({ ...datos, id }, setErrores)
-            mutate(datos)
         } else {
             resultado = await crearDocente(datos, setErrores)
         }
@@ -56,6 +57,10 @@ export default function FormularioDocente() {
             navigate('/administrador/docentes');
         }
     }
+
+    useEffect(()=>{
+        mutate()
+    },[])
     if (isLoading) return <Cargando />
 
     return (

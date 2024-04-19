@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 
 export default function Docentes() {
 
-    const { eliminarDocente, filtrado } = useProyect();
+    const { eliminarDocente, filtrado, changeView } = useProyect();
     const navigate = useNavigate();
 
     const [apiItems, setApiItems] = useState([]);
@@ -23,8 +23,10 @@ export default function Docentes() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/teachers', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/teachers', fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -41,6 +43,10 @@ export default function Docentes() {
         }
     }, [isLoading, data])
 
+    useEffect(()=>{
+        changeView('docentes')
+        mutate()
+    },[])
     if (isLoading) return <Cargando />
 
     const handleDelete = (nombre, id) => {
@@ -57,6 +63,7 @@ export default function Docentes() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarDocente(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,

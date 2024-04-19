@@ -28,7 +28,9 @@ export default function FormularioUnidad() {
   )
 
   const { data, error, isLoading, mutate } = useSWR(() => id ? `/api/units/${id}` : null, fetcher, {
-    refreshInterval: 1000
+    revalidateOnFocus: true,
+    revalidateIfStale: false,
+    revalidateOnReconnect: false
   })
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function FormularioUnidad() {
       setNombre(data.data.nombre)
       setArea(data.data.area)
     }
-  }, [isLoading])
+  }, [isLoading, data])
 
   const handleSubmit = async (e) => {
     let resultado = false
@@ -47,7 +49,6 @@ export default function FormularioUnidad() {
     }
     if (id) {
       resultado = await editarUnidad({ ...datos, id }, setErrores)
-      mutate(datos)
     } else {
       resultado = await crearUnidad(datos, setErrores)
     }
@@ -56,6 +57,10 @@ export default function FormularioUnidad() {
       navigate('/administrador/unidades');
     }
   }
+
+  useEffect(()=>{
+    mutate()
+  },[])
   if (isLoading) return <Cargando />
   return (
     <>

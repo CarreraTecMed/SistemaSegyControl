@@ -60,7 +60,7 @@ class MoneyBoxController extends Controller
                     $montoInicial += number_format(($spentRecharge->gasto), 2);
                     $gastos -= number_format(($spentRecharge->gasto),2);
                 }
-                $montoInicial = number_format(($montoInicial - $spentRecharge->gasto), 2);
+                $montoInicial = $montoInicial - $spentRecharge->gasto;
                 $spentRecharge->saldo = $montoInicial;
                 $gastos += $spentRecharge->gasto;
             }

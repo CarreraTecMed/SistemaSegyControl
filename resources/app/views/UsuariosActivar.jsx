@@ -13,7 +13,7 @@ export default function UsuariosActivar() {
     const [apiItems, setApiItems] = useState([]);
     const [filteredItems, setFilteredItems] = useState([])
 
-    const { filtrado, activarUsuario } = useProyect();
+    const { filtrado, activarUsuario, changeView } = useProyect();
     const token = localStorage.getItem('AUTH_TOKEN')
 
     const fetcher = () => clienteAxios('/api/users/activated', {
@@ -22,8 +22,10 @@ export default function UsuariosActivar() {
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR('/api/users/activated', fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR('/api/users/activated', fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
     
     useEffect(() => {
@@ -40,6 +42,10 @@ export default function UsuariosActivar() {
         }
     }, [isLoading, data])
 
+    useEffect(()=>{
+        changeView('activar usuarios')
+        mutate()
+    },[])
     if (isLoading) return <Cargando />
 
     const handleActivated = (nombre, id) => {
@@ -56,6 +62,7 @@ export default function UsuariosActivar() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await activarUsuario(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Activado!",
                             text: respuesta,

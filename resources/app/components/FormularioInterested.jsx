@@ -27,14 +27,16 @@ export default function FormularioInterested() {
   )
 
   const { data, error, isLoading, mutate } = useSWR(id ? `/api/interesteds/${id}` : null, fetcher, {
-    refreshInterval: 1000
+    revalidateOnFocus: true,
+    revalidateIfStale: false,
+    revalidateOnReconnect: false
   })
 
   useEffect(() => {
     if (id && !isLoading) {
       setNombre(data.data.nombreCompleto)
     }
-  }, [isLoading])
+  }, [isLoading,data])
 
   const handleSubmit = async (e) => {
     let resultado = false
@@ -45,7 +47,6 @@ export default function FormularioInterested() {
 
     if (id) {
       resultado = await editarCustodio({ ...datos, id }, setErrores)
-      mutate(datos)
     } else {
       resultado = await crearCustodio(datos, setErrores)
     }
@@ -54,6 +55,10 @@ export default function FormularioInterested() {
       navigate('/administrador/caja-chica/custodio');
     }
   }
+
+  useEffect(()=>{
+    mutate()
+  },[])
   if (isLoading) return <Cargando />
 
   return (

@@ -13,17 +13,13 @@ use Illuminate\Queue\SerializesModels;
 class NewResponseEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $nombreCompleto;
-    public $correspondencia;
-    public $id;
+    public $user;
     /**
      * Create a new event instance.
      */
-    public function __construct($nombreCompleto, $correspondencia, $id)
+    public function __construct($user)
     {
-        $this->nombreCompleto = $nombreCompleto;
-        $this->correspondencia= $correspondencia;
-        $this->id = $id;
+        $this->user = $user;
     }
 
     /**

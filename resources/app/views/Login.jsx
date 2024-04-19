@@ -48,11 +48,11 @@ export default function Login() {
                     </Link>
                 </nav>
             </form>
-            <nav className="text-center mt-3">
+            {/* <nav className="text-center mt-3">
                 <Link to="/auth/recuperar-contraseña">
                     ¿Olvidaste tu contraseña?
                 </Link>
-            </nav>
+            </nav> */}
         </>
     )
 }

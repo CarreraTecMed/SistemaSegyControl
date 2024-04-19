@@ -117,7 +117,6 @@ class CorrespondenceController extends Controller
             "estado" => ['string']
         ], [
             'nombre.required' => 'El nombre del documento es obligatorio',
-            'identificador.unique' => 'Ya existe una hoja de ruta con esa identificacion',
             'unit_id' => 'La unidad es obligatoria',
             'descripcion.required' => 'La descripcion es obligatoria',
         ]);

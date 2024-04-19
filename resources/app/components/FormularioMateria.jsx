@@ -27,8 +27,10 @@ export default function FormularioMateria() {
         })
     )
 
-    const { data, error, isLoading } = useSWR(()=> id ? `/api/subject/${id}` : null, fetcher, {
-        refreshInterval: 1000
+    const { data, error, isLoading, mutate } = useSWR(()=> id ? `/api/subject/${id}` : null, fetcher, {
+        revalidateOnFocus:false,
+        revalidateIfStale: false,
+        revalidateOnReconnect: false
     })
 
     useEffect(() => {
@@ -45,10 +47,8 @@ export default function FormularioMateria() {
             nombre:materia,
             mencion:String(mencion)
         }
-        console.log(datos)
         if (id) {
             resultado = await editarMateria({ ...datos, id }, setErrores)
-            mutate(datos)
         } else {
             resultado = await crearMateria(datos, setErrores)
         }
@@ -56,6 +56,10 @@ export default function FormularioMateria() {
             navigate('/administrador/materias');
         }
     }
+
+    useEffect(()=>{
+        mutate()
+    },[])
     if (isLoading) return <Cargando />
 
     return (
