@@ -80,6 +80,7 @@ export default function RecuperarCorrespondencia() {
       if (result.isConfirmed) {
         const mostrarRespuesta = async () => {
           const respuesta = await recuperarCorrespondencia(id);
+          mutate()
           if (Boolean(respuesta)) {
             Swal.fire({
               title: "Se realizo con exito!",

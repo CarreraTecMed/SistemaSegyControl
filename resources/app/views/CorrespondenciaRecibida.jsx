@@ -86,6 +86,7 @@ export default function CorrespondenciaRecibida() {
                 const mostrarRespuesta = async () => {
                     const respuesta = await eliminarCorrespondencia(id);
                     if (Boolean(respuesta)) {
+                        mutate()
                         Swal.fire({
                             title: "Eliminado!",
                             text: respuesta,
