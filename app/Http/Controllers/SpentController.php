@@ -26,7 +26,7 @@ class SpentController extends Controller
     public function getUltimateSpent()
     {
         $spents = Spent::with('money_box')->with('interested')->orderBy('nro')->get();
-
+       
         $nro = 1;
         if (count($spents) > 0) {
             $lastSpent = $spents->last();
@@ -36,7 +36,7 @@ class SpentController extends Controller
         $nroBuscador = 1;
 
         foreach($spents as $spent) {
-            if ($spent->nro !== $nroBuscador) {
+            if ($spent->nro !== (string)$nroBuscador) {
                 $nro = $nroBuscador;
                 break;
             }
