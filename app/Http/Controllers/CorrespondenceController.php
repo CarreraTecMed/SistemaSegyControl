@@ -39,16 +39,30 @@ class CorrespondenceController extends Controller
     public function getIdentificador()
     {
 
-        $correspondencias = Correspondence::with('unit')->where('tipo', 'despachada')->get();
-        $identificador = 12500;
+        $correspondencias = Correspondence::with('unit')->where('tipo', 'despachada')->orderBy('identificador')->get();
 
+        $identificador = 12500;
+        
         if (count($correspondencias) > 0) {
             $lastCorrespondencia = $correspondencias->last();
             $identificador = intval($lastCorrespondencia->identificador) + 1;
         }
+        
+        $identificadorBuscador = 12500;
+
+        foreach($correspondencias as $correspondencia) {
+            $stringIdentificador = (string) $identificadorBuscador;
+            if ($correspondencia->identificador !== $stringIdentificador.'-CTM') {
+                $identificador = $identificadorBuscador;
+                break;
+            }
+            $identificadorBuscador += 1;
+        }
+
         return [
             'identificador' => strval($identificador . '-CTM')
         ];
+        
     }
 
     public function getCorrespondenceId($id)

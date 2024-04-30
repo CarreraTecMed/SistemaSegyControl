@@ -25,11 +25,22 @@ class SpentController extends Controller
 
     public function getUltimateSpent()
     {
-        $spents = Spent::with('money_box')->with('interested')->get();
+        $spents = Spent::with('money_box')->with('interested')->orderBy('nro')->get();
+
         $nro = 1;
         if (count($spents) > 0) {
             $lastSpent = $spents->last();
             $nro = $lastSpent->nro + 1;
+        }
+
+        $nroBuscador = 1;
+
+        foreach($spents as $spent) {
+            if ($spent->nro !== $nroBuscador) {
+                $nro = $nroBuscador;
+                break;
+            }
+            $nroBuscador += 1;
         }
 
         return [
@@ -115,6 +126,12 @@ class SpentController extends Controller
 
             $spent->descripcion = $request->descripcion;
             $spent->interested_id = $request->custodio;
+            if ($spent->gasto > $request->gasto) {
+                $moneyBox->monto += abs($request->gasto-$spent->gasto);
+            }else {
+                $moneyBox->monto -= abs($request->gasto-$spent->gasto);
+            }
+
             $spent->gasto = $request->gasto;
             $spent->nroFactura = null;
 
