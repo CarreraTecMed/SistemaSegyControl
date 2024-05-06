@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import Encabezado from "../components/Encabezado";
 import Cargando from "../components/Cargando";
 import useProyect from "../hooks/useProyect";
 import clienteAxios from "../config/axios";
@@ -8,6 +7,7 @@ import { useState, useEffect } from "react";
 import Swal from 'sweetalert2'
 import Alerta from "../components/Alerta";
 import { convertirFecha, convertirFechaSinHora } from "../helpers/CajaChica";
+import Excel from "../components/Excel";
 
 export default function HistorialCajaChica() {
 
@@ -17,7 +17,8 @@ export default function HistorialCajaChica() {
 
     const [dateOne, setDateOne] = useState('');
     const [dateTwo, setDateTwo] = useState('');
-    const [errores, setErrores] = useState('')
+    const [errores, setErrores] = useState('');
+    const [mostrarExcel, setMostrarExcel] = useState(false);
 
     const fetcher = () => clienteAxios('/api/moneybox/history', {
         headers: {
@@ -31,29 +32,37 @@ export default function HistorialCajaChica() {
         revalidateOnReconnect: false
     })
 
-    
+
     const handleDocument = (e) => {
-        e.preventDefault();
+        const option = e.target.value
 
-        let erroresFuncion = []
-        setErrores([])
+        if (option !== '') {
 
-        if ([dateOne, dateTwo].includes('')) {
-            setErrores(['Las 2 fechas son obligatorias'])
-            erroresFuncion = ['hay errores']
-        }
+            let erroresFuncion = []
+            setErrores([])
 
-        if (new Date(dateOne) > new Date(dateTwo)) {
-            setErrores(['La fecha de inicio debe de ser menor o igual a la fecha fin'])
-            erroresFuncion = ['hay errores']
-        }
+            if ([dateOne, dateTwo].includes('')) {
+                setErrores(['Las 2 fechas son obligatorias'])
+                erroresFuncion = ['hay errores']
+            }
 
-        if (erroresFuncion.length === 0) {
-            setFechasGasto({
-                dateOne,
-                dateTwo
-            })
-            changeStateModalCajaChicaDocumento()
+            if (new Date(dateOne) > new Date(dateTwo)) {
+                setErrores(['La fecha de inicio debe de ser menor o igual a la fecha fin'])
+                erroresFuncion = ['hay errores']
+            }
+
+            if (erroresFuncion.length === 0) {
+                setFechasGasto({
+                    dateOne,
+                    dateTwo
+                })
+                if (option === 'pdf') {
+                    changeStateModalCajaChicaDocumento()
+                    setMostrarExcel(false)
+                } else {
+                    setMostrarExcel(!mostrarExcel)
+                }
+            }
         }
     }
 
@@ -91,11 +100,11 @@ export default function HistorialCajaChica() {
         confirmar();
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         mutate()
-    },[])
+    }, [])
     if (isLoading) return <Cargando />
-    
+
     return (
         <>
             <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between p-2 rounded-lg shadow-2xl bg-white">
@@ -123,7 +132,7 @@ export default function HistorialCajaChica() {
                     </div>
                 </div>
             </div>
-            <form className="mt-2 rounded-lg md:flex-row md:gap-0 flex-col gap-2 items-center bg-sky-50 text-sm p-2" onSubmit={handleDocument}>
+            <form className="mt-2 rounded-lg md:flex-row md:gap-0 flex-col gap-2 items-center bg-sky-50 text-sm p-2">
                 {errores ? errores.map((error, i) => <Alerta key={i}>{error}</Alerta>) : null}
                 <div className="flex justify-around items-center md:flex-row flex-col md:gap-0 gap-2">
                     <div className="border-2 px-2">
@@ -134,10 +143,17 @@ export default function HistorialCajaChica() {
                         <label className="font-black" htmlFor="dateTwo">Fecha Fin: </label>
                         <input type="date" name="dateOne" id="dateTwo" className="font-bold text-black rounded-lg p-2" value={dateTwo} onChange={e => setDateTwo(e.target.value)} />
                     </div>
-                    <button type="submit" className="bg-blue-500 hover:bg-blue-600 rounded-lg font-bold text-white p-2">Generar Documento</button>
+                    <select onChange={(e) => {
+                        handleDocument(e)
+                    }}
+                        className="bg-blue-500 hover:bg-blue-700 rounded-lg font-bold text-white p-2">
+                        <option value="">Generar documento</option>
+                        <option value="excel">Excel</option>
+                        <option value="pdf">Pdf</option>
+                    </select>
                 </div>
             </form>
-
+            {mostrarExcel && <Excel/>}
             <div className="relative overflow-x-auto mt-3">
                 <table className="w-full text-sm text-center mx-auto">
                     <thead className="text-sm uppercase bg-gray-600 text-white">

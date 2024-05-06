@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\MoneyBoxExport;
 use App\Http\Resources\MoneyBoxCollection;
 use App\Models\MoneyBox;
 use App\Models\Recharge;
@@ -10,6 +11,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel as ExcelWriter;
 use PDF;
 
 class MoneyBoxController extends Controller
@@ -58,7 +61,7 @@ class MoneyBoxController extends Controller
             } else { //gasto
                 if ($spentRecharge->ingreso === 'si') {
                     $montoInicial += number_format(($spentRecharge->gasto), 2);
-                    $gastos -= number_format(($spentRecharge->gasto),2);
+                    $gastos -= number_format(($spentRecharge->gasto), 2);
                 }
                 $montoInicial = $montoInicial - $spentRecharge->gasto;
                 $spentRecharge->saldo = $montoInicial;
@@ -73,27 +76,6 @@ class MoneyBoxController extends Controller
 
     public function getMoneyBoxRecopilation($dateOne, $dateTwo)
     {
-        //Funciones
-        function GenerateWord()
-        {
-            // Get a random word
-            $nb = rand(3, 10);
-            $w = '';
-            for ($i = 1; $i <= $nb; $i++)
-                $w .= chr(rand(ord('a'), ord('z')));
-            return $w;
-        }
-
-        function GenerateSentence()
-        {
-            // Get a random sentence
-            $nb = rand(1, 10);
-            $s = '';
-            for ($i = 1; $i <= $nb; $i++)
-                $s .= GenerateWord() . ' ';
-            return substr($s, 0, -1);
-        }
-
         //Fechas
         $fechaInicial = Carbon::parse($dateOne);
         $fechaFinal = Carbon::parse($dateTwo);
@@ -121,7 +103,6 @@ class MoneyBoxController extends Controller
                 }
                 $montoInicial -= number_format($spentRecharge->gasto, 2);
                 $gastoInicial += number_format($spentRecharge->gasto, 2);
-                
             } else { //Reembolso
                 $montoInicial += number_format($spentRecharge->montoRecarga);
                 $gastoInicial -= number_format($spentRecharge->montoRecarga, 2);
@@ -208,19 +189,18 @@ class MoneyBoxController extends Controller
                     iconv('UTF-8', 'windows-1252', $spent->interested->nombreCompleto),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
                     number_format($spent->gasto, 2) . ' Bs.',
-                    number_format($montoInicial,2) . 'Bs.'
+                    number_format($montoInicial, 2) . ' Bs.'
                 ];
-
             } else { //desembolso
                 $data[] = [
-                    '', 
-                    $fechaCambiada->format('d-m-Y'), 
-                    '', 
-                    'DESEMBOLSO CAJA CHICA:', 
-                    '', 
-                    $spent->montoRecarga . ' Bs.', 
-                    '', 
-                    $montoInicial + $spent->montoRecarga . ' Bs.'
+                    '',
+                    $fechaCambiada->format('d-m-Y'),
+                    '',
+                    'DESEMBOLSO CAJA CHICA:',
+                    '',
+                    $spent->montoRecarga . ' Bs.',
+                    '',
+                    number_format(($montoInicial + $spent->montoRecarga),2) . ' Bs.'
                 ];
                 $gastoInicial -= number_format($spent->montoRecarga, 2);
                 $montoInicial += number_format($spent->montoRecarga, 2);
@@ -231,7 +211,7 @@ class MoneyBoxController extends Controller
         //     };
         for ($i = 0; $i < count($data); $i++)
             $pdf->Row(array($data[$i][0], $data[$i][1], $data[$i][2], $data[$i][3], $data[$i][4], $data[$i][5], $data[$i][6], $data[$i][7]));
-        
+
         $pdf->SetFont('Arial', 'B', 8);
         $pdf->Cell(270, 10, 'SALDO Y GASTO (DESPUES DE FECHAS)', 1, 0, 'C');
         $pdf->Cell(20, 10, '', 1, 0, 'C');
@@ -281,10 +261,141 @@ class MoneyBoxController extends Controller
         }
         $pdf->Cell(100, 5, iconv('UTF-8', 'windows-1252', $director . ' Carrera Tecnología Médica'), 0, 0, 'C');
 
-
         // Salida del PDF
         $pdfContent = $pdf->Output('', 'S');
         return response()->json(['pdfContent' => base64_encode($pdfContent)]);
+    }
+
+    public function getMoneyBoxRecopilationExcel($dateOne, $dateTwo)
+    {
+        //Fechas
+        $fechaInicial = Carbon::parse($dateOne);
+        $fechaFinal = Carbon::parse($dateTwo);
+
+        $cajaChica = MoneyBox::with('director')->with('manager')->first();
+        $recharges = Recharge::all();
+
+
+        $spentsModel = Spent::with('interested')->get();
+        $spentsRecharges = $spentsModel->concat($recharges)->sortBy('created_at')->values();
+        $montoInicial = 1000.00;
+        $gastoInicial = 0;
+
+        foreach ($spentsRecharges as $spentRecharge) {
+            $fechaComparar = Carbon::parse(isset($spentRecharge->fechaCreacion) ? $spentRecharge->fechaCreacion : $spentRecharge->fechaRecarga);
+
+            if ($fechaComparar->between($fechaInicial, $fechaFinal)) {
+                break;
+            }
+
+            if (isset($spentRecharge->fechaCreacion)) { //gasto
+                if ($spentRecharge->ingreso === 'si') {
+                    $montoInicial += number_format(($spentRecharge->gasto), 2);
+                    $gastoInicial -= number_format($spentRecharge->gasto, 2);
+                }
+                $montoInicial -= number_format($spentRecharge->gasto, 2);
+                $gastoInicial += number_format($spentRecharge->gasto, 2);
+            } else { //Reembolso
+                $montoInicial += number_format($spentRecharge->montoRecarga);
+                $gastoInicial -= number_format($spentRecharge->montoRecarga, 2);
+            }
+        }
+
+        $montoInicialPrimero = $montoInicial;
+        $gastoInicialPrimero = $gastoInicial;
+
+        $fechaInicial->setLocale('Es');
+        $fechaFinal->setLocale('Es');
+        $fechaMostrarOne = strtoupper($fechaInicial->isoFormat('D MMMM Y'));
+        $fechaMostrarTwo = strtoupper($fechaFinal->isoFormat('D MMMM Y'));
+
+        //Gastos que se realizaron entre fechas
+        $spents = [];
+
+        foreach ($spentsRecharges as $spentRecharge) {
+            $fechaComparar = Carbon::parse(isset($spentRecharge->fechaCreacion) ? $spentRecharge->fechaCreacion : $spentRecharge->fechaRecarga);
+            if ($fechaComparar->between($fechaInicial, $fechaFinal)) {
+                $spents[] = $spentRecharge;
+            }
+        }
+        //Datos
+
+        $data = [];
+
+        foreach ($spents as $spent) {
+            $fechaCambiada = Carbon::createFromFormat('Y-m-d', isset($spent->fechaCreacion) ? $spent->fechaCreacion : $spent->fechaRecarga);
+
+            if (isset($spent->fechaCreacion)) { //gasto 
+
+                $montoInicial -= number_format($spent->gasto, 2);
+                $gastoInicial += number_format($spent->gasto, 2);
+
+                if ($spent->ingreso === 'si') {
+                    $montoInicial += number_format($spent->gasto, 2);
+                    $gastoInicial -= number_format($spent->gasto, 2);
+                }
+
+                $data[] = [
+                    $spent->nro,
+                    $fechaCambiada->format('d-m-Y'),
+                    $spent->nroFactura !== '' ? $spent->nroFactura : 'Sin factura',
+                    iconv('UTF-8', 'windows-1252', $spent->descripcion),
+                    iconv('UTF-8', 'windows-1252', $spent->interested->nombreCompleto),
+                    $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
+                    number_format($spent->gasto, 2) . ' Bs.',
+                    number_format($montoInicial, 2) . ' Bs.'
+                ];
+            } else { //desembolso
+                $data[] = [
+                    '',
+                    $fechaCambiada->format('d-m-Y'),
+                    '',
+                    'DESEMBOLSO CAJA CHICA:',
+                    '',
+                    $spent->montoRecarga . ' Bs.',
+                    '',
+                    number_format(($montoInicial + $spent->montoRecarga),2) . ' Bs.'
+                ];
+                $gastoInicial -= number_format($spent->montoRecarga, 2);
+                $montoInicial += number_format($spent->montoRecarga, 2);
+            }
+        };
+        // for ($i = 0; $i < 22; $i++){ 
+        //         $data[] = ['1', 'Dato ', 'Dato ', Str::random(rand(1, 250)), 'Dato 1', 'Dato 2','Dato','Dato'];
+        //     };
+
+        $encargado = $cajaChica->manager;
+        $director = $cajaChica->director;
+        $nombreDirector = $director->gradoAcademico . ' ' . $director->nombreCompleto;
+        $genero = substr($director->gradoAcademico, -1);
+        $director = '';
+        if ($genero === 'o') {
+            $director = 'Director';
+        } else {
+            $director = 'Directora';
+        }
+
+        // return (new FastExcel($data))->download('users.xlsx');
+    
+        
+        array_unshift($data, ['','','','SALDO Y GASTO (ANTES DE FECHAS)','','',(string)number_format($gastoInicialPrimero,2). ' Bs.', (string)number_format($montoInicialPrimero,2).' Bs.']);
+        
+        array_unshift($data, ['Nro', 'Fecha', 'Factura', 'Detalle', 'Entregado a/Empresa', 'Ingreso', 'Gasto', 'Saldo']);
+        
+        array_push($data, ['','','','SALDO Y GASTO (DESPUES DE FECHAS)','','',(string)number_format($gastoInicial,2) . ' Bs.', (string)number_format($montoInicial,2).' Bs.']);
+
+        // Guardar el archivo en almacenamiento local
+        // return Excel::download(new MoneyBoxExport($data), 'money_box.xlsx');
+        $excelFile = Excel::raw(new MoneyBoxExport(
+            $data,
+            $encargado->nombres . ' ' . $encargado->apellidoPaterno . ' ' . $encargado->apellidoMaterno,
+            $nombreDirector,
+            $director . ' Carrera Tecnología Médica',
+            'UNIVERSIDAD MAYOR DE SAN ANDRÉS FACULTAD DE MEDICINA, ENFERMERÍA, NUTRICIÓN Y TECNOLOGÍA MÉDICA'."\n". 'CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DETALLE DE GASTOS DE CAJA CHICA CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo
+        ), ExcelWriter::XLSX);
+        
+        return response()->json(['fileContent' => base64_encode($excelFile)]);
+        
     }
 
     public function editMoneyBox($id, Request $request)

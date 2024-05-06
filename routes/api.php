@@ -74,6 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/moneybox', [MoneyBoxController::class, 'getMoneyBox']);
     Route::get('/moneybox/history', [MoneyBoxController::class, 'getMoneyBoxHistory']);
     Route::get('/moneybox/{date1}/{date2}', [MoneyBoxController::class, 'getMoneyBoxRecopilation']);
+    Route::get('/moneyboxExcel/{date1}/{date2}', [MoneyBoxController::class, 'getMoneyBoxRecopilationExcel']);
     Route::put('/moneybox/{id}', [MoneyBoxController::class, 'editMoneyBox']);
     Route::patch('/moneybox/{id}', [MoneyBoxController::class, 'selectManager']);
     Route::patch('/moneybox/director/{id}', [MoneyBoxController::class, 'selectDirector']);
