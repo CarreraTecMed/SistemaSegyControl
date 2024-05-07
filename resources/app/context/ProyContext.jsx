@@ -31,10 +31,10 @@ const ProyProvider = ({ children }) => {
     const [usuarioCreador, setUsuarioCreador] = useState('');
     const [respuestaElegida, setRespuestaElegida] = useState('');
     const [respuestaNavegacion, setRespuestaNavegacion] = useState('');
-
-
+    
     //utilidades
-
+    
+    const [menuOpen, setMenuOpen] = useState(true);
     const [material, setMaterial] = useState({});
     const [pedido, setPedido] = useState([])
     const [pedidoUrl, setPedidoUrl] = useState([])
@@ -950,6 +950,7 @@ const ProyProvider = ({ children }) => {
             fechasDocumento,
             filtrado,
             material,
+            menuOpen,
             menuMateriales,
             modalCajaChica,
             modalCajaChicaDocumento,
@@ -1034,6 +1035,7 @@ const ProyProvider = ({ children }) => {
             setUsuarioColaborador,
             setUsuarioCreador,
             setRespuestaNavegacion,
+            setMenuOpen,
             showDetails,
         }}>
             {children}
