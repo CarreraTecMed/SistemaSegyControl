@@ -184,7 +184,7 @@ class MoneyBoxController extends Controller
                 $data[] = [
                     $spent->nro,
                     $fechaCambiada->format('d-m-Y'),
-                    $spent->nroFactura !== '' ? $spent->nroFactura : 'Sin factura',
+                    $spent->nroFactura !== '' && $spent->nroFactura !== null ? $spent->nroFactura : 'Sin factura',
                     iconv('UTF-8', 'windows-1252', $spent->descripcion),
                     iconv('UTF-8', 'windows-1252', $spent->interested->nombreCompleto),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
@@ -338,7 +338,7 @@ class MoneyBoxController extends Controller
                 $data[] = [
                     $spent->nro,
                     $fechaCambiada->format('d-m-Y'),
-                    $spent->nroFactura !== '' ? $spent->nroFactura : 'Sin factura',
+                    $spent->nroFactura !== '' && $spent->nroFactura !== null ? $spent->nroFactura : 'Sin factura',
                     iconv('UTF-8', 'windows-1252', $spent->descripcion),
                     iconv('UTF-8', 'windows-1252', $spent->interested->nombreCompleto),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),

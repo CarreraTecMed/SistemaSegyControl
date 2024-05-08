@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('money_boxes', function (Blueprint $table) {
-            $table->unsignedBigInteger('director_user_id')->nullable();
-            $table->foreign('director_user_id')->references('id')->on('users')->constrained();
+            $table->unsignedBigInteger('director_teacher_id')->nullable();
+            $table->foreign('director_teacher_id')->references('id')->on('teachers')->constrained();
         });
     }
 
