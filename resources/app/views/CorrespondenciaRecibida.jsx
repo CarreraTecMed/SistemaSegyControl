@@ -71,7 +71,7 @@ export default function CorrespondenciaRecibida() {
     },[])
     
     if (isLoading) return <Cargando />
-    
+    console.log(data.data)
     const handleDelete = (nombre, id) => {
         Swal.fire({
             title: nombre,

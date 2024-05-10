@@ -1,6 +1,6 @@
 import { Page, Text, View, Document, StyleSheet, Image, PDFViewer, Font } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind'
-import { convertirFecha, convertirNumeroALetras } from '../helpers/CajaChica';
+import { convertirFecha, convertirFechaSinHora, convertirNumeroALetras } from '../helpers/CajaChica';
 import useProyect from '../hooks/useProyect';
 
 const tw = createTw({
@@ -20,8 +20,8 @@ export default function CajaChicaInformationPdf() {
 
     const { gastoElegido } = useProyect();
     const { nroFactura, nro, gasto: costo, id, descripcion, created_at, interested, manager } = gastoElegido;
-    const { nombreCompleto } = interested
     const { nombres, apellidoPaterno, apellidoMaterno } = manager
+    console.log(gastoElegido)
     return (
         <PDFViewer style={styles.container}>
             <Document>
@@ -44,14 +44,18 @@ export default function CajaChicaInformationPdf() {
                                 style={styles.imageLogoCarrera}
                             />
                         </View>
-                        <Text style={styles.titleBigger}>COMPROBANTE DE CAJA CHICA</Text>
+                        <View style={styles.titleNumber}>
+                            <Text style={styles.titleWhite}>adasdsadsds12312</Text>
+                            <Text style={styles.titleBigger}>COMPROBANTE DE CAJA CHICA</Text>
+                            <Text style={styles.titleBigger}>N       {nro}</Text>
+                        </View>
                         <View style={styles.content}>
                             <View style={styles.divSeparador}>
                                 <Text style={tw("text-red-500")}>Ciudad: <Text style={styles.span}>La Paz</Text></Text>
-                                <Text style={tw("text-red-500")}>Fecha: <Text style={styles.span}>{convertirFecha(created_at)}</Text></Text>
+                                <Text style={tw("text-red-500")}>Fecha: <Text style={styles.span}>{convertirFechaSinHora(created_at)}</Text></Text>
                             </View>
                             <View style={styles.divSeparador}>
-                                <Text style={tw("text-red-500")}>Pagado a: <Text style={styles.span}>{nombreCompleto}</Text></Text>
+                                <Text style={tw("text-red-500")}>Pagado a: <Text style={styles.span}>{interested}</Text></Text>
                                 {
                                     !nroFactura && (<Text style={tw("text-red-500")}>Nro. de Vale: <Text style={styles.span}>{nro}</Text></Text>)
                                 }
@@ -75,7 +79,7 @@ export default function CajaChicaInformationPdf() {
                                 </View>
                                 {
                                     !nroFactura && <View style={styles.firmas}>
-                                        <Text>{nombreCompleto}</Text>
+                                        <Text>{interested}</Text>
                                         <Text>INTERESADO</Text>
                                         <Text>RECIBI CONFORME</Text>
                                     </View>
@@ -106,14 +110,19 @@ export default function CajaChicaInformationPdf() {
                                             style={styles.imageLogoCarrera}
                                         />
                                     </View>
-                                    <Text style={styles.titleBigger}>VALE DE MOVILIDAD</Text>
+                                    <View style={styles.titleNumber}>
+                                        <Text style={styles.titleWhite}>adasdsadsds12312</Text>
+                                        <Text style={styles.titleBigger}>VALE DE MOVILIDAD</Text>
+                                        <Text style={styles.titleBigger}>N       {nro}</Text>
+                                    </View>
+
                                     <View style={styles.content}>
                                         <View style={styles.divSeparador}>
                                             <Text style={tw("text-red-500")}>Ciudad: <Text style={styles.span}>La Paz</Text></Text>
-                                            <Text style={tw("text-red-500")}>Fecha: <Text style={styles.span}>{convertirFecha(created_at)}</Text></Text>
+                                            <Text style={tw("text-red-500")}>Fecha: <Text style={styles.span}>{convertirFechaSinHora(created_at)}</Text></Text>
                                         </View>
                                         <View style={styles.divSeparador}>
-                                            <Text style={tw("text-red-500")}>Pagado a: <Text style={styles.span}>{nombreCompleto}</Text></Text>
+                                            <Text style={tw("text-red-500")}>Pagado a: <Text style={styles.span}>{interested}</Text></Text>
                                             <Text style={tw("text-red-500")}>Nro. de Vale: <Text style={styles.span}>{nro}</Text></Text>
                                             {
                                                 nroFactura && <Text style={tw("text-red-500")}>Nro. de Factura: <Text style={styles.span}>{nroFactura}</Text></Text>
@@ -134,7 +143,7 @@ export default function CajaChicaInformationPdf() {
                                                 <Text>ENTREGUE CONFORME</Text>
                                             </View>
                                             <View style={styles.firmas}>
-                                                <Text>{nombreCompleto}</Text>
+                                                <Text>{interested}</Text>
                                                 <Text>INTERESADO</Text>
                                                 <Text>RECIBI CONFORME</Text>
                                             </View>
@@ -149,21 +158,17 @@ export default function CajaChicaInformationPdf() {
         </PDFViewer>
     )
 }
-Font.register({
-    family: 'Oswald',
-    src: 'https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf'
-});
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
         height: '100%',
+        fontFamily: 'OpenSans'
     },
     titleContainer: {
         display: 'flex',
         alignItems: 'center',
         fontSize: '10px',
-        fontWeight: 'bold font'
     },
     valeMovilidadContainer: {
         marginTop: '30px'
@@ -192,8 +197,7 @@ const styles = StyleSheet.create({
         marginBottom: '5px',
     },
     titleBigger: {
-        textAlign: 'center',
-        fontSize: '18px',
+        fontSize: '20px',
         fontWeight: 'bold',
         marginBottom: '5px'
     },
@@ -222,6 +226,16 @@ const styles = StyleSheet.create({
         display: 'flex',
         alignItems: 'center',
         lineHeight: '1.5'
+    },
+    titleNumber: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginRight: '20px'
+    },
+    titleWhite: {
+        color: 'white'
     }
 
 

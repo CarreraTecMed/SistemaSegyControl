@@ -10,7 +10,7 @@ class Spent extends Model
 {
     protected $fillable = [
         "money_boxes_id",
-        "interested_id",
+        "interested",
         "fechaCreacion",
         "nro",
         "nroFactura",
@@ -20,9 +20,9 @@ class Spent extends Model
     ];
     use HasFactory;
 
-    public function interested(){
-        return $this->belongsTo(Interested::class);
-    }
+    // public function interested(){
+    //     return $this->belongsTo(Interested::class);
+    // }
 
     public function money_box(){
         return $this->hasOne(MoneyBox::class, 'id');

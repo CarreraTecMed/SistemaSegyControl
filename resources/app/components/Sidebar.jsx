@@ -35,7 +35,7 @@ export default function Sidebar() {
                 </button>
             </div>
 
-            <div className={`${menuOpen ? 'block' : 'hidden'} `}>
+            <div className={`${menuOpen ? 'block' : 'hidden'} md:block`}>
                 <button type="button" className='w-full bg-red-500 hover:bg-red-600 mt-4 p-3 font-black text-white text-sm' onClick={() => {
                     logout()
                 }}>Cerrar Sesion</button>

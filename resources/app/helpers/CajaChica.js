@@ -30,9 +30,9 @@ export function convertirNumeroALetras(numero) {
 
     if (parteEntera === 100) {
         if (parteDecimal > 0) {
-            return `100 /${parteDecimal} Bs.`;
+            return `100 ${parteDecimal}/100 Bs.`;
         } else {
-            return 'Cien /00 Bs.'
+            return 'Cien 00/100 Bs.'
         }
 
     }
@@ -66,8 +66,8 @@ export function convertirNumeroALetras(numero) {
     let resultado = convertirParteEntera(parteEntera);
 
     if (parteDecimal > 0) {
-        return resultado + ` /${parteDecimal} Bs.`;
+        return resultado + ` ${parteDecimal}/100 Bs.`;
     } else {
-        return resultado + ` /00 Bs.`;
+        return resultado + ` 00/100 Bs.`;
     }
 }

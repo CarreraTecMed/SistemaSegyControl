@@ -58,8 +58,8 @@ class TeacherController extends Controller
             $teacher = Teacher::find($id);
             $money_box = MoneyBox::find(1);
 
-            if ($money_box->director_user_id === $teacher->id) {
-                $money_box->director_user_id = null;
+            if ($money_box->director_teacher_id === $teacher->id) {
+                $money_box->director_teacher_id = null;
             }
 
             $money_box->save();

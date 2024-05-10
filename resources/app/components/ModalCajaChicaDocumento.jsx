@@ -21,7 +21,8 @@ export default function ModalCajaChicaDocumento() {
     })
 
     if (isLoading) return <Cargando />
-
+    console.log(data)
+    console.log(error)
     return (
 
         <>

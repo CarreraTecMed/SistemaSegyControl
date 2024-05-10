@@ -36,34 +36,35 @@ class CorrespondenceController extends Controller
         $correspondences = Correspondence::where('created_at','<',$fechaActual)->where('estado','!=','Finalizado')->where('estado','!=','Archivado')->where('estado','!=','Eliminado')->get();
         return $correspondences;
     }
-    public function getIdentificador()
-    {
+    
+    // public function getIdentificador()
+    // {
 
-        $correspondencias = Correspondence::with('unit')->where('tipo', 'despachada')->orderBy('identificador')->get();
+    //     $correspondencias = Correspondence::with('unit')->where('tipo', 'despachada')->orderBy('identificador')->get();
 
-        $identificador = 12500;
+    //     $identificador = 12500;
         
-        if (count($correspondencias) > 0) {
-            $lastCorrespondencia = $correspondencias->last();
-            $identificador = intval($lastCorrespondencia->identificador) + 1;
-        }
+    //     if (count($correspondencias) > 0) {
+    //         $lastCorrespondencia = $correspondencias->last();
+    //         $identificador = intval($lastCorrespondencia->identificador) + 1;
+    //     }
         
-        $identificadorBuscador = 12500;
+    //     $identificadorBuscador = 12500;
 
-        foreach($correspondencias as $correspondencia) {
-            $stringIdentificador = (string) $identificadorBuscador;
-            if ($correspondencia->identificador !== $stringIdentificador.'-CTM') {
-                $identificador = $identificadorBuscador;
-                break;
-            }
-            $identificadorBuscador += 1;
-        }
+    //     foreach($correspondencias as $correspondencia) {
+    //         $stringIdentificador = (string) $identificadorBuscador;
+    //         if ($correspondencia->identificador !== $stringIdentificador.'-CTM') {
+    //             $identificador = $identificadorBuscador;
+    //             break;
+    //         }
+    //         $identificadorBuscador += 1;
+    //     }
 
-        return [
-            'identificador' => strval($identificador . '-CTM')
-        ];
+    //     return [
+    //         'identificador' => strval($identificador . '-CTM')
+    //     ];
         
-    }
+    // }
 
     public function getCorrespondenceId($id)
     {
@@ -155,6 +156,7 @@ class CorrespondenceController extends Controller
                 $documentoEncontrado->nombreDocumento = $nameDocumento;
                 $documentoEncontrado->fechaSubida = Carbon::now();
                 $documentoEncontrado->save();
+                $correspondence->documento_inicial = $nameDocumento;
             }
 
             $correspondence->nombre = $request->nombre;

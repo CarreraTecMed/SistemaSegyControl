@@ -24,7 +24,7 @@ class MoneyBox extends Model
     }
 
     public function director(){
-        return $this->belongsTo(Teacher::class,'director_user_id','id');
+        return $this->belongsTo(Teacher::class,'director_teacher_id','id');
     }
 
     public function recharges(){

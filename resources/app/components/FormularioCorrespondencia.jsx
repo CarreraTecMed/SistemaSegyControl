@@ -62,7 +62,8 @@ export default function FormularioCorrespondencia() {
     }
 
     
-    let url = id ? `/api/correspondences/${id}` : `/api/correspondences/identificador`
+    // let url = id ? `/api/correspondences/${id}` : `/api/correspondences/identificador`
+    const url = id ? `/api/correspondences/${id}` : null
 
     const handleUnit = async (areaSelected) => {
         setUnidades([])
@@ -109,12 +110,6 @@ export default function FormularioCorrespondencia() {
             }
         }
         obtenerDatos();
-    }, [isLoading, data])
-
-    useEffect(() => {
-        if (Boolean(id) === false && !isLoading && pathname.includes('despachada')) {
-            setIdentificador(data.data.identificador);
-        }
     }, [isLoading, data])
 
     useEffect(()=>{

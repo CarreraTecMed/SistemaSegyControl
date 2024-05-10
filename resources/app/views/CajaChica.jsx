@@ -51,6 +51,8 @@ export default function CajaChica() {
     }, [])
 
     if (isLoading) return <Cargando />
+    console.log(data)
+    console.log(error)
     const handleDelete = (nombre, id) => {
         Swal.fire({
             title: nombre,
@@ -108,7 +110,7 @@ export default function CajaChica() {
                                 Gasto
                             </th>
                             <th scope="col" className="p-2">
-                                Ingreso
+                                Custodio
                             </th>
                             <th scope="col" className="p-2">
                                 Factura
@@ -135,7 +137,7 @@ export default function CajaChica() {
                                         {gasto.gasto} Bs.
                                     </td>
                                     <td className="p-2">
-                                        {gasto.ingreso === 'no' ? '' : `${gasto.gasto} Bs.`}
+                                        {gasto.interested}
                                     </td>
                                     <td className="p-2">
                                         {gasto.nroFactura || 'Sin número de factura'}

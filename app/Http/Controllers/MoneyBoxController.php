@@ -20,7 +20,7 @@ class MoneyBoxController extends Controller
     public function getMoneyBox()
     {
         $cajaChica = MoneyBox::with('manager')->with('director')->first();
-        $spents = Spent::with('interested')->orderBy('created_at', 'desc')->get();
+        $spents = Spent::orderBy('created_at', 'desc')->get();
         $recargas = Recharge::all();
         $montoInicial = 1000.00;
         $gastos = 0.00;
@@ -47,7 +47,7 @@ class MoneyBoxController extends Controller
     public function getMoneyBoxHistory()
     {
         $recharges = Recharge::all();
-        $spents = Spent::with('interested')->get();
+        $spents = Spent::all();
         $spentsRecharges = $spents->concat($recharges)->sortBy('created_at')->values();
 
         $montoInicial = 1000.00;
@@ -84,7 +84,7 @@ class MoneyBoxController extends Controller
         $recharges = Recharge::all();
 
 
-        $spentsModel = Spent::with('interested')->get();
+        $spentsModel = Spent::all();
         $spentsRecharges = $spentsModel->concat($recharges)->sortBy('created_at')->values();
         $montoInicial = 1000.00;
         $gastoInicial = 0;
@@ -186,7 +186,7 @@ class MoneyBoxController extends Controller
                     $fechaCambiada->format('d-m-Y'),
                     $spent->nroFactura !== '' && $spent->nroFactura !== null ? $spent->nroFactura : 'Sin factura',
                     iconv('UTF-8', 'windows-1252', $spent->descripcion),
-                    iconv('UTF-8', 'windows-1252', $spent->interested->nombreCompleto),
+                    iconv('UTF-8', 'windows-1252', $spent->interested),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
                     number_format($spent->gasto, 2) . ' Bs.',
                     number_format($montoInicial, 2) . ' Bs.'
@@ -276,7 +276,7 @@ class MoneyBoxController extends Controller
         $recharges = Recharge::all();
 
 
-        $spentsModel = Spent::with('interested')->get();
+        $spentsModel = Spent::all();
         $spentsRecharges = $spentsModel->concat($recharges)->sortBy('created_at')->values();
         $montoInicial = 1000.00;
         $gastoInicial = 0;
@@ -340,7 +340,7 @@ class MoneyBoxController extends Controller
                     $fechaCambiada->format('d-m-Y'),
                     $spent->nroFactura !== '' && $spent->nroFactura !== null ? $spent->nroFactura : 'Sin factura',
                     iconv('UTF-8', 'windows-1252', $spent->descripcion),
-                    iconv('UTF-8', 'windows-1252', $spent->interested->nombreCompleto),
+                    iconv('UTF-8', 'windows-1252', $spent->interested),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
                     number_format($spent->gasto, 2) . ' Bs.',
                     number_format($montoInicial, 2) . ' Bs.'
@@ -426,7 +426,7 @@ class MoneyBoxController extends Controller
     public function selectDirector($id, Request $request)
     {
         $money_box = MoneyBox::find($id);
-        $money_box->director_user_id = $request->user_id;
+        $money_box->director_teacher_id = $request->user_id;
         $money_box->save();
         return [
             'message' => 'Director seleccionado'

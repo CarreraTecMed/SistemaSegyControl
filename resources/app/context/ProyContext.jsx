@@ -34,7 +34,7 @@ const ProyProvider = ({ children }) => {
     
     //utilidades
     
-    const [menuOpen, setMenuOpen] = useState(true);
+    const [menuOpen, setMenuOpen] = useState(false);
     const [material, setMaterial] = useState({});
     const [pedido, setPedido] = useState([])
     const [pedidoUrl, setPedidoUrl] = useState([])

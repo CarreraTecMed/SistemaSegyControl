@@ -26,9 +26,9 @@ export default function FormularioCajaChica() {
     let urls = []
 
     if (id) {
-        urls = ['/api/interesteds', `/api/spents/${id}`]
+        urls = [`/api/spents/${id}`]
     } else {
-        urls = ['/api/interesteds', `/api/spents/nroVale`]
+        urls = [`/api/spents/nroVale`]
     }
     // console.log(urls)
     const token = localStorage.getItem('AUTH_TOKEN')
@@ -56,6 +56,7 @@ export default function FormularioCajaChica() {
             descripcion,
             custodio: entidad
         }
+
         //console.log(datos)
         if (id) {
             resultado = await editarGasto(datos, setErrores, id)
@@ -69,27 +70,25 @@ export default function FormularioCajaChica() {
     }
     useEffect(() => {
         if (id && !isLoading) {
-            setCosto(data[1].gasto)
-            setNro(data[1].nro)
-            setIngreso(data[1].ingreso)
-            setNroFactura(data[1].nroFactura || '')
-            setDescripcion(data[1].descripcion)
-            setEntidad(data[1].interested.id)
+            setCosto(data[0].gasto)
+            setNro(data[0].nro)
+            setIngreso(data[0].ingreso)
+            setNroFactura(data[0].nroFactura || '')
+            setDescripcion(data[0].descripcion)
+            setEntidad(data[0].interested)
         }
 
     }, [isLoading, data])
 
     useEffect(() => {
         if (Boolean(id) === false && !isLoading) {
-            setNro(data[1].nro);
+            setNro(data[0].nro);
         }
 
     }, [isLoading, data])
 
     if (isLoading) return <Cargando />
-    // console.log(error)
 
-    const interesteds = data[0]?.data || [];
     return (
         <>
             <form className="max-w-[500px] w-full mx-auto mt-5 bg-gray-900 p-6 rounded-lg" onSubmit={handleSubmit}>
@@ -98,7 +97,7 @@ export default function FormularioCajaChica() {
                     <label className="text-gray-200 font-bold" htmlFor="costo">Costo (Bs.)</label>
                     <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="number" step="any" id="costo" placeholder="Ej. 812512" value={costo} onChange={e => setCosto(e.target.value)} />
                 </div>
-                {
+                {/* {
                     id && (
                         <>
                             <div className="flex items-center justify-around text-gray-400 py-2">
@@ -128,11 +127,11 @@ export default function FormularioCajaChica() {
                             </div>
                         </>
                     )
-                }
+                } */}
 
-                <div className="flex flex-col text-gray-400 ">
+                <div className="flex flex-col text-gray-400 mt-2">
                     <label className="text-gray-200 font-bold" htmlFor="nrogasto">Nro de gasto</label>
-                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="nrogasto" placeholder="Ej. 812512" value={nro} onChange={e => setNro(e.target.value)} disabled />
+                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="nrogasto" placeholder="Ej. 812512" value={nro} onChange={e => setNro(e.target.value)} />
                 </div>
                 <div className="flex flex-col text-gray-400 py-2">
                     <label className="text-gray-200 font-bold" htmlFor="user">Nro de factura</label>
@@ -140,14 +139,16 @@ export default function FormularioCajaChica() {
                 </div>
                 <div className="flex flex-col text-gray-400 py-1">
                     <label className="text-gray-200 font-bold" htmlFor="custodio">Custodio</label>
-                    <select className='rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white' id="custodio" value={entidad} onChange={e => setEntidad(e.target.value)}>
+                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="user" placeholder="Ej. Walter Bustillos" value={entidad} onChange={e => setEntidad(e.target.value)} />
+
+                    {/* <select className='rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white' id="custodio" value={entidad} onChange={e => setEntidad(e.target.value)}>
                         <option value={""}>Elige quien recibira el dinero</option>
                         {
                             interesteds?.map(({ nombreCompleto, id }) => (
                                 <option value={id} key={id}>{nombreCompleto}</option>
                             ))
                         }
-                    </select>
+                    </select> */}
                 </div>
                 <div className="flex flex-col text-gray-400 py-2">
                     <label className="text-gray-200 font-bold" htmlFor="descripcion">Descripción</label>

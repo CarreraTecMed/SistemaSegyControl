@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('spents', function (Blueprint $table) {
-            $table->unsignedBigInteger('interested_id');
-            $table->foreign('interested_id')->references('id')->on('interesteds')->constrained();
+            // $table->unsignedBigInteger('interested_id');
+            // $table->foreign('interested_id')->references('id')->on('interesteds')->constrained();
+            $table->string('interested')->nullable();
         });
     }
 

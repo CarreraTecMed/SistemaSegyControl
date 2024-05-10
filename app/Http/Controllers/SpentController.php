@@ -20,12 +20,12 @@ class SpentController extends Controller
 
     public function getSpentId($id)
     {
-        return Spent::with('money_box')->with('interested')->find($id);
+        return Spent::with('money_box')->find($id);
     }
 
     public function getUltimateSpent()
     {
-        $spents = Spent::with('money_box')->with('interested')->orderBy('nro')->get();
+        $spents = Spent::with('money_box')->orderBy('nro')->get();
        
         $nro = 1;
         if (count($spents) > 0) {
@@ -69,7 +69,7 @@ class SpentController extends Controller
                 "nroFactura" => $data['nroFactura'] === 'Sin factura' ? '' : $data['nroFactura'],
                 "descripcion" => $data['descripcion'],
                 "gasto" => $data['gasto'],
-                "interested_id" => $data['custodio'],
+                "interested" => $data['custodio'],
                 "ingreso" => $request['ingreso']
             ]);
 
@@ -125,7 +125,7 @@ class SpentController extends Controller
             $spent = Spent::find($id);
 
             $spent->descripcion = $request->descripcion;
-            $spent->interested_id = $request->custodio;
+            $spent->interested = $request->custodio;
             if ($spent->gasto > $request->gasto) {
                 $moneyBox->monto += abs($request->gasto-$spent->gasto);
             }else {
