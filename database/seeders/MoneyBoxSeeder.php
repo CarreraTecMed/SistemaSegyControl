@@ -15,7 +15,7 @@ class MoneyBoxSeeder extends Seeder
     public function run(): void
     {
         DB::table('money_boxes')->insert([
-            'nombre' => 'Caja Chica I',
+            'nombre' => 'CC. 2024',
             'monto' => 1000.00,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
