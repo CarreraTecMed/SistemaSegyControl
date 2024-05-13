@@ -55,7 +55,7 @@ export default function FormUsuario() {
     }
     
     if (id) {
-      console.log(datos)
+      // console.log(datos)
       resultado = await editarUsuario(datos, setErrores)
     } else {
       resultado = await crearUsuario(datos, setErrores)

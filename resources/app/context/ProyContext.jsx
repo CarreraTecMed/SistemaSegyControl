@@ -40,6 +40,7 @@ const ProyProvider = ({ children }) => {
     const [pedidoUrl, setPedidoUrl] = useState([])
     const [pedidos, setPedidos] = useState([])
     const [correspondenciasNotificacion, setCorrespondenciasNotificacion] = useState([])
+    const [idMoneyBox, setIdMoneyBox] = useState('')
 
     const aumentarPedido = (pedidoUsuario) => {
         setPedido([...pedido, pedidoUsuario])
@@ -387,7 +388,7 @@ const ProyProvider = ({ children }) => {
         setCargando(true)
         const token = localStorage.getItem('AUTH_TOKEN')
 
-        console.log(id, 'desde eliminar prestamos')
+        // console.log(id, 'desde eliminar prestamos')
         try {
 
             const { data } = await clienteAxios.delete(`/api/orders/${id}`, {
@@ -899,7 +900,7 @@ const ProyProvider = ({ children }) => {
         const token = localStorage.getItem('AUTH_TOKEN')
 
         try {
-            const { data } = await clienteAxios.post(`/api/recharges/create`, { monto }, {
+            const { data } = await clienteAxios.post(`/api/recharges/create`, { monto, idMoneyBox }, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -924,6 +925,26 @@ const ProyProvider = ({ children }) => {
                 }
             })
             return data
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setCargando(false);
+        }
+    }
+
+    //Caja Chica
+
+    const crearCajaChica = async () => {
+        setCargando(true);
+        const token = localStorage.getItem('AUTH_TOKEN')
+
+        try {
+            const { data } = await clienteAxios.post(`/api/moneybox/create`, {  }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            return data.message
         } catch (error) {
             console.log(error)
         } finally {
@@ -968,11 +989,13 @@ const ProyProvider = ({ children }) => {
             usuarioColaborador,
             usuarioCreador,
             view,
+            idMoneyBox,
             activarUsuario,
             actualizarContraseña,
             agregarColaborador,
             aumentarPedido,
             changeView,
+            crearCajaChica,
             crearCorrespondencia,
             crearCustodio,
             crearGasto,
@@ -1036,6 +1059,7 @@ const ProyProvider = ({ children }) => {
             setUsuarioCreador,
             setRespuestaNavegacion,
             setMenuOpen,
+            setIdMoneyBox,
             showDetails,
         }}>
             {children}

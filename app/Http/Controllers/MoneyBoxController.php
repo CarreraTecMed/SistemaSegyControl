@@ -10,6 +10,7 @@ use App\Models\Spent;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Codedge\Fpdf\Fpdf\Fpdf;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Excel as ExcelWriter;
@@ -17,13 +18,13 @@ use PDF;
 
 class MoneyBoxController extends Controller
 {
-    public function getMoneyBox()
+    public function getMoneyBox($id)
     {
-        $cajaChica = MoneyBox::with('manager')->with('director')->first();
-        $spents = Spent::orderBy('created_at', 'desc')->get();
-        $recargas = Recharge::all();
-        $montoInicial = 1000.00;
-        $gastos = 0.00;
+        $cajaChica = MoneyBox::with('manager')->with('director')->find($id);
+        $spents = Spent::orderBy('created_at', 'desc')->where('money_boxes_id', $cajaChica->id)->get();
+        $recargas = Recharge::where('money_box_id', $cajaChica->id)->get();
+        $montoInicial = $cajaChica->monto;
+        $gastos = 1000 - $cajaChica->monto;
 
         foreach ($spents as $spent) {
             $gastos += $spent->gasto;
@@ -44,14 +45,22 @@ class MoneyBoxController extends Controller
         return $cajaChica;
     }
 
-    public function getMoneyBoxHistory()
+    public function moneyBoxes()
     {
-        $recharges = Recharge::all();
-        $spents = Spent::all();
+        $moneyBoxes = MoneyBox::all();
+        return $moneyBoxes;
+    }
+
+    public function getMoneyBoxHistory($id)
+    {
+        $cajaChica = MoneyBox::find($id);
+        $spents = Spent::orderBy('created_at', 'desc')->where('money_boxes_id', $cajaChica->id)->get();
+        $recharges = Recharge::where('money_box_id',$id)->get();
+        // $spents = Spent::all();
         $spentsRecharges = $spents->concat($recharges)->sortBy('created_at')->values();
 
-        $montoInicial = 1000.00;
-        $gastos = 0;
+        $montoInicial = $cajaChica->monto;
+        $gastos = 1000 - $cajaChica->monto;
 
         foreach ($spentsRecharges as $spentRecharge) {
             if (isset($spentRecharge->estado)) { //recarga
@@ -70,24 +79,51 @@ class MoneyBoxController extends Controller
         }
         return [
             'gastos' => $spentsRecharges,
-            'gastoAcumulado' => number_format($gastos, 2)
+            'gastoAcumulado' => number_format($gastos, 2),
+            'montoInicial' => $cajaChica->monto
         ];
     }
 
-    public function getMoneyBoxRecopilation($dateOne, $dateTwo)
+    public function createMoneyBox()
+    {
+        DB::beginTransaction();
+
+        try {
+            $currentYear = Carbon::now()->year;
+            MoneyBox::create([
+                'nombre' => 'CC. '.$currentYear,
+                'monto' => 1000.00,
+                'user_id' => '3',
+                'director_teacher_id' => '1'
+            ]);
+
+            // $moneyBox->monto = $moneyBox->monto - $spent->gasto;
+
+            DB::commit();
+            return [
+                "message" => "Caja chica creada correctamente",
+            ];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response([
+                'errors' => ['Ocurrio algo inesperado con el servidor: ' . $th->getMessage()]
+            ], 422);
+        }
+    }
+
+    public function getMoneyBoxRecopilation($dateOne, $dateTwo, $id)
     {
         //Fechas
         $fechaInicial = Carbon::parse($dateOne);
         $fechaFinal = Carbon::parse($dateTwo);
 
-        $cajaChica = MoneyBox::with('director')->with('manager')->first();
-        $recharges = Recharge::all();
+        $cajaChica = MoneyBox::with('director')->with('manager')->find($id);
+        $recharges = Recharge::where('money_box_id', $id)->get();
 
-
-        $spentsModel = Spent::all();
+        $spentsModel = Spent::where('money_boxes_id', $id)->get();
         $spentsRecharges = $spentsModel->concat($recharges)->sortBy('created_at')->values();
-        $montoInicial = 1000.00;
-        $gastoInicial = 0;
+        $montoInicial = $cajaChica->monto;
+        $gastoInicial = 1000 - $cajaChica->monto;
 
         foreach ($spentsRecharges as $spentRecharge) {
             $fechaComparar = Carbon::parse(isset($spentRecharge->fechaCreacion) ? $spentRecharge->fechaCreacion : $spentRecharge->fechaRecarga);
@@ -200,7 +236,7 @@ class MoneyBoxController extends Controller
                     '',
                     $spent->montoRecarga . ' Bs.',
                     '',
-                    number_format(($montoInicial + $spent->montoRecarga),2) . ' Bs.'
+                    number_format(($montoInicial + $spent->montoRecarga), 2) . ' Bs.'
                 ];
                 $gastoInicial -= number_format($spent->montoRecarga, 2);
                 $montoInicial += number_format($spent->montoRecarga, 2);
@@ -266,20 +302,20 @@ class MoneyBoxController extends Controller
         return response()->json(['pdfContent' => base64_encode($pdfContent)]);
     }
 
-    public function getMoneyBoxRecopilationExcel($dateOne, $dateTwo)
+    public function getMoneyBoxRecopilationExcel($dateOne, $dateTwo, $id)
     {
         //Fechas
         $fechaInicial = Carbon::parse($dateOne);
         $fechaFinal = Carbon::parse($dateTwo);
 
-        $cajaChica = MoneyBox::with('director')->with('manager')->first();
-        $recharges = Recharge::all();
+        $cajaChica = MoneyBox::with('director')->with('manager')->find($id);
+        $recharges = Recharge::where('money_box_id', $id)->get();
 
 
-        $spentsModel = Spent::all();
+        $spentsModel = Spent::where('money_boxes_id', $id)->get();
         $spentsRecharges = $spentsModel->concat($recharges)->sortBy('created_at')->values();
-        $montoInicial = 1000.00;
-        $gastoInicial = 0;
+        $montoInicial = $cajaChica->monto;
+        $gastoInicial = 1000 - $cajaChica->monto;
 
         foreach ($spentsRecharges as $spentRecharge) {
             $fechaComparar = Carbon::parse(isset($spentRecharge->fechaCreacion) ? $spentRecharge->fechaCreacion : $spentRecharge->fechaRecarga);
@@ -354,7 +390,7 @@ class MoneyBoxController extends Controller
                     '',
                     $spent->montoRecarga . ' Bs.',
                     '',
-                    number_format(($montoInicial + $spent->montoRecarga),2) . ' Bs.'
+                    number_format(($montoInicial + $spent->montoRecarga), 2) . ' Bs.'
                 ];
                 $gastoInicial -= number_format($spent->montoRecarga, 2);
                 $montoInicial += number_format($spent->montoRecarga, 2);
@@ -376,13 +412,13 @@ class MoneyBoxController extends Controller
         }
 
         // return (new FastExcel($data))->download('users.xlsx');
-    
-        
-        array_unshift($data, ['','','','SALDO Y GASTO (ANTES DE FECHAS)','','',(string)number_format($gastoInicialPrimero,2). ' Bs.', (string)number_format($montoInicialPrimero,2).' Bs.']);
-        
+
+
+        array_unshift($data, ['', '', '', 'SALDO Y GASTO (ANTES DE FECHAS)', '', '', (string)number_format($gastoInicialPrimero, 2) . ' Bs.', (string)number_format($montoInicialPrimero, 2) . ' Bs.']);
+
         array_unshift($data, ['Nro', 'Fecha', 'Factura', 'Detalle', 'Entregado a/Empresa', 'Ingreso', 'Gasto', 'Saldo']);
-        
-        array_push($data, ['','','','SALDO Y GASTO (DESPUES DE FECHAS)','','',(string)number_format($gastoInicial,2) . ' Bs.', (string)number_format($montoInicial,2).' Bs.']);
+
+        array_push($data, ['', '', '', 'SALDO Y GASTO (DESPUES DE FECHAS)', '', '', (string)number_format($gastoInicial, 2) . ' Bs.', (string)number_format($montoInicial, 2) . ' Bs.']);
 
         // Guardar el archivo en almacenamiento local
         // return Excel::download(new MoneyBoxExport($data), 'money_box.xlsx');
@@ -391,11 +427,10 @@ class MoneyBoxController extends Controller
             $encargado->nombres . ' ' . $encargado->apellidoPaterno . ' ' . $encargado->apellidoMaterno,
             $nombreDirector,
             $director . ' Carrera Tecnología Médica',
-            'UNIVERSIDAD MAYOR DE SAN ANDRÉS FACULTAD DE MEDICINA, ENFERMERÍA, NUTRICIÓN Y TECNOLOGÍA MÉDICA'."\n". 'CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DETALLE DE GASTOS DE CAJA CHICA CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo
+            'UNIVERSIDAD MAYOR DE SAN ANDRÉS FACULTAD DE MEDICINA, ENFERMERÍA, NUTRICIÓN Y TECNOLOGÍA MÉDICA' . "\n" . 'CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DETALLE DE GASTOS DE CAJA CHICA CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo
         ), ExcelWriter::XLSX);
-        
+
         return response()->json(['fileContent' => base64_encode($excelFile)]);
-        
     }
 
     public function editMoneyBox($id, Request $request)

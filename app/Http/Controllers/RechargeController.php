@@ -15,10 +15,6 @@ class RechargeController extends Controller
         return Recharge::where('estado', 'iniciado')->first();
     }
 
-    public function getRecharges()
-    {
-    }
-
     public function createRecharge(Request $request)
     {
         DB::beginTransaction();
@@ -26,11 +22,11 @@ class RechargeController extends Controller
             $money_box = MoneyBox::find(1);
             Recharge::create([
                 'estado' => 'activo',
-                'money_box_id' => 1,
+                'money_box_id' => $request->idMoneyBox,
                 'montoRecarga' => $request->monto,
                 'fechaRecarga' => Carbon::now(),
             ]);
-            $money_box->monto = $money_box->monto + $request->monto;
+            // $money_box->monto = $money_box->monto + $request->monto;
             $money_box->save();
 
             DB::commit();

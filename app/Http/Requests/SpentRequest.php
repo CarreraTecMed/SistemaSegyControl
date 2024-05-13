@@ -23,8 +23,8 @@ class SpentRequest extends FormRequest
     {
         return [
             "gasto" => ["required","numeric","regex:/^[\d]{0,8}(\.[\d]{1,2})?$/",'min:1'],
-            "nro" => ["required", "string",'unique:spents,nro'],
-            "nroFactura" => ["required", "string",'unique:spents,nroFactura'],
+            "nro" => ["required", "string"],
+            "nroFactura" => ["required", "string"],
             "custodio" => ["required"],
             "descripcion" => ["required","string"],
         ];

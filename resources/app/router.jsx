@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { lazy } from 'react'
 import Layout from './layout/Layout'
 import AuthLayout from './layout/AuthLayout'
 import Login from './views/Login'

@@ -71,11 +71,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //MoneyBox
 
-    Route::get('/moneybox', [MoneyBoxController::class, 'getMoneyBox']);
-    Route::get('/moneybox/history', [MoneyBoxController::class, 'getMoneyBoxHistory']);
-    Route::get('/moneybox/{date1}/{date2}', [MoneyBoxController::class, 'getMoneyBoxRecopilation']);
-    Route::get('/moneyboxExcel/{date1}/{date2}', [MoneyBoxController::class, 'getMoneyBoxRecopilationExcel']);
+    Route::get('/moneyboxes', [MoneyBoxController::class, 'moneyBoxes']);
+    Route::get('/moneybox/{id}', [MoneyBoxController::class, 'getMoneyBox']);
+    Route::get('/moneybox/history/{id}', [MoneyBoxController::class, 'getMoneyBoxHistory']);
+    Route::get('/moneybox/{date1}/{date2}/{id}', [MoneyBoxController::class, 'getMoneyBoxRecopilation']);
+    Route::get('/moneyboxExcel/{date1}/{date2}/{id}', [MoneyBoxController::class, 'getMoneyBoxRecopilationExcel']);
     Route::put('/moneybox/{id}', [MoneyBoxController::class, 'editMoneyBox']);
+    Route::post('/moneybox/create', [MoneyBoxController::class, 'createMoneyBox']);
     Route::patch('/moneybox/{id}', [MoneyBoxController::class, 'selectManager']);
     Route::patch('/moneybox/director/{id}', [MoneyBoxController::class, 'selectDirector']);
 
@@ -87,7 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //Spents
 
     Route::get('/spents', [SpentController::class, 'getSpents']);
-    Route::get('/spents/nroVale', [SpentController::class, 'getUltimateSpent']);
+    Route::get('/spents/nroVale/{id}', [SpentController::class, 'getUltimateSpent']);
     Route::get('/spents/{id}', [SpentController::class, 'getSpentId']);
     Route::post('/spents', [SpentController::class, 'createSpent']);
     Route::put('/spents/{id}', [SpentController::class, 'editSpent']);

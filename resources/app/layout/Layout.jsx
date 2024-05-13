@@ -62,7 +62,7 @@ export default function Layout() {
         const notification = new Notification('Nuevo prestamo de material')
         notification.onclick = () => {
           navigate('/administrativo/materiales')
-          console.log('clickeando')
+          // console.log('clickeando')
         }
         mutate('/api/orders')
       }

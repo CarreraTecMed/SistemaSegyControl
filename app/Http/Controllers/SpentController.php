@@ -23,9 +23,9 @@ class SpentController extends Controller
         return Spent::with('money_box')->find($id);
     }
 
-    public function getUltimateSpent()
+    public function getUltimateSpent($id)
     {
-        $spents = Spent::with('money_box')->orderBy('nro')->get();
+        $spents = Spent::with('money_box')->where('money_boxes_id',$id)->orderBy('nro')->get();
        
         $nro = 1;
         if (count($spents) > 0) {
@@ -56,14 +56,14 @@ class SpentController extends Controller
             $moneyBox = MoneyBox::find(1);
             $data = $request->validated();
 
-            if ($moneyBox->monto < $request->gasto) {
-                return response([
-                    'errors' => ['El gasto excede a el dinero sobrante en la caja chica']
-                ], 422);
-            }
+            // if ($moneyBox->monto < $request->gasto) {
+            //     return response([
+            //         'errors' => ['El gasto excede a el dinero sobrante en la caja chica']
+            //     ], 422);
+            // }
 
             $spent = Spent::create([
-                "money_boxes_id" => '1',
+                "money_boxes_id" => $request['idMoneyBox'],
                 "nro" => $data['nro'],
                 "fechaCreacion" => Carbon::now(),
                 "nroFactura" => $data['nroFactura'] === 'Sin factura' ? '' : $data['nroFactura'],
@@ -73,7 +73,7 @@ class SpentController extends Controller
                 "ingreso" => $request['ingreso']
             ]);
 
-            $moneyBox->monto = $moneyBox->monto - $spent->gasto;
+            // $moneyBox->monto = $moneyBox->monto - $spent->gasto;
             $moneyBox->save();
             DB::commit();
             return [
@@ -95,8 +95,8 @@ class SpentController extends Controller
         try {
             $request->validate([
                 "gasto" => ["required", "numeric", "regex:/^[\d]{0,8}(\.[\d]{1,2})?$/",'min:1'],
-                "nro" => ["required", "string", 'unique:spents,nro,' . $id],
-                "nroFactura" => ["required", "string", 'unique:spents,nroFactura,' . $id],
+                "nro" => ["required", "string"],
+                "nroFactura" => ["required", "string"],
                 "custodio" => ["required"],
                 "descripcion" => ["required", "string"],
             ], [
@@ -126,11 +126,11 @@ class SpentController extends Controller
 
             $spent->descripcion = $request->descripcion;
             $spent->interested = $request->custodio;
-            if ($spent->gasto > $request->gasto) {
-                $moneyBox->monto += abs($request->gasto-$spent->gasto);
-            }else {
-                $moneyBox->monto -= abs($request->gasto-$spent->gasto);
-            }
+            // if ($spent->gasto > $request->gasto) {
+            //     $moneyBox->monto += abs($request->gasto-$spent->gasto);
+            // }else {
+            //     $moneyBox->monto -= abs($request->gasto-$spent->gasto);
+            // }
 
             $spent->gasto = $request->gasto;
             $spent->nroFactura = null;
@@ -169,7 +169,7 @@ class SpentController extends Controller
         try {
             $moneyBox = MoneyBox::find(1);
             $spent = Spent::find($id);
-            $moneyBox->monto = $spent->gasto + $moneyBox->monto;
+            // $moneyBox->monto = $spent->gasto + $moneyBox->monto;
             $moneyBox->save();
             $spent->delete();
 

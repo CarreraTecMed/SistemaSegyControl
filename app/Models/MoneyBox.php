@@ -12,6 +12,7 @@ class MoneyBox extends Model
         'user_id',
         'nombre',
         'monto',
+        'director_teacher_id',
     ];
     use HasFactory;
 

@@ -5,24 +5,23 @@ import Cargando from "./Cargando";
 
 export default function ModalCajaChicaDocumento() {
 
-    const { changeStateModalCajaChicaDocumento, fechasGasto } = useProyect();
+    const { changeStateModalCajaChicaDocumento, fechasGasto, idMoneyBox } = useProyect();
     const { dateOne, dateTwo } = fechasGasto;
     const token = localStorage.getItem('AUTH_TOKEN')
-    const fetcher = () => clienteAxios(`/api/moneybox/${dateOne}/${dateTwo}`, {
+    const fetcher = () => clienteAxios(`/api/moneybox/${dateOne}/${dateTwo}/${idMoneyBox || '1'}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR(`/api/moneybox/${dateOne}/${dateTwo}`, fetcher, {
+    const { data, error, isLoading } = useSWR(`/api/moneybox/${dateOne}/${dateTwo}/${idMoneyBox || '1'}`, fetcher, {
         revalidateOnFocus:false,
         revalidateIfStale: false,
         revalidateOnReconnect: false
     })
 
     if (isLoading) return <Cargando />
-    console.log(data)
-    console.log(error)
+ 
     return (
 
         <>

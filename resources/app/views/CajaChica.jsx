@@ -10,22 +10,31 @@ import { convertirFechaSinHora } from "../helpers/CajaChica";
 
 export default function CajaChica() {
 
-    const { changeStateModalCajaChica, eliminarGasto, setGastoElegido, filtrado, changeView } = useProyect();
+    const { changeStateModalCajaChica, eliminarGasto, setGastoElegido, filtrado, changeView, idMoneyBox, setIdMoneyBox } = useProyect();
     const navigate = useNavigate();
 
     const token = localStorage.getItem('AUTH_TOKEN')
 
     const [apiItems, setApiItems] = useState([]);
     const [filteredItems, setFilteredItems] = useState([])
+ 
+    const currentIdMoneyBox = idMoneyBox || '1';
 
-    const fetcher = () => clienteAxios('/api/moneybox', {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    }).then(data => data.data)
+    const urls = [`/api/moneybox/${currentIdMoneyBox}`, `/api/moneyboxes`]
 
-    const { data, error, isLoading, mutate } = useSWR('/api/moneybox', fetcher, {
-        revalidateIfStale: false,
+    const fetcher = (urls) => {
+        // console.log(urls)
+        const f = url => clienteAxios(url,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }).then(data => data.data)
+        return Promise.all(urls.map(url => f(url)))
+    }
+
+    const { data, error, isLoading, mutate } = useSWR(urls, fetcher, {
+        //revalidateIfStale: false,
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
     })
@@ -40,19 +49,26 @@ export default function CajaChica() {
 
     useEffect(() => {
         if (!isLoading) {
-            setApiItems(data.spents)
-            setFilteredItems(data.spents)
+            setApiItems(data[0].spents)
+            setFilteredItems(data[0].spents)
         }
     }, [isLoading, data])
 
     useEffect(() => {
         changeView('caja chica')
-        mutate()
+        // mutate()
     }, [])
 
+    // useEffect(() => {
+    //     mutate(); // Vuelve a cargar los datos cuando idCurrentBox cambia
+    // }, [currentIdMoneyBox, mutate]);
+
     if (isLoading) return <Cargando />
-    console.log(data)
-    console.log(error)
+
+    // console.log(data)
+    // console.log(error)
+
+    const cajasChicas = data[1]
     const handleDelete = (nombre, id) => {
         Swal.fire({
             title: nombre,
@@ -92,8 +108,18 @@ export default function CajaChica() {
             <Encabezado />
             <div className="flex md:flex-row md:gap-0 flex-col gap-1 items-center justify-around text-xl bg-blue-950 text-white p-2 mt-2 rounded-lg">
                 <p>Dinero total: <span className="font-bold text-yellow-400">1000 Bs.</span></p>
-                <p>Dinero disponible: <span className="font-bold text-yellow-400">{data.saldo} Bs.</span></p>
-                <p>Dinero gastado: <span className="font-bold text-yellow-400">{data.gasto} Bs.</span></p>
+                <p>Dinero disponible: <span className="font-bold text-yellow-400">{data[0].saldo} Bs.</span></p>
+                <p>Dinero gastado: <span className="font-bold text-yellow-400">{data[0].gasto} Bs.</span></p>
+                <select onChange={(e) => {
+                    setIdMoneyBox(e.target.value)
+                }}
+                    className="bg-blue-500 hover:bg-blue-700 rounded-lg font-bold text-white p-2 text-sm" value={idMoneyBox || '1'}>
+                    {
+                        cajasChicas.map(cajaChica => (
+                            <option key={cajaChica.id} value={cajaChica.id}>{cajaChica.nombre}</option>
+                        ))
+                    }
+                </select>
             </div>
 
             <div className="relative overflow-x-auto mt-3">
@@ -125,7 +151,7 @@ export default function CajaChica() {
                     </thead>
                     <tbody>
                         {
-                            filteredItems.map(gasto => (
+                            filteredItems?.map(gasto => (
                                 <tr className="bg-white border-b" key={gasto.id}>
                                     <td className="font-bold p-2 bg-slate-100">
                                         {gasto.nro}
@@ -150,7 +176,7 @@ export default function CajaChica() {
                                             className="bg-blue-700 hover:bg-blue-900 w-8 h-8 rounded-full"
                                             onClick={() => {
                                                 changeStateModalCajaChica()
-                                                setGastoElegido({ ...gasto, director: data.director, manager: data.manager, nombreGasto: gasto.nombre })
+                                                setGastoElegido({ ...gasto, director: data[0].director, manager: data[0].manager, nombreGasto: gasto.nombre })
                                             }}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-white mx-auto">

@@ -5,17 +5,17 @@ import clienteAxios from '../config/axios';
 import Cargando from './Cargando';
 
 export default function Excel({ setMostrarExcel }) {
-    const { fechasGasto } = useProyect()
+    const { fechasGasto, idMoneyBox } = useProyect()
     const { dateOne, dateTwo } = fechasGasto;
     const token = localStorage.getItem('AUTH_TOKEN')
 
-    const fetcher = () => clienteAxios(`/api/moneyboxExcel/${dateOne}/${dateTwo}`, {
+    const fetcher = () => clienteAxios(`/api/moneyboxExcel/${dateOne}/${dateTwo}/${idMoneyBox || '1'}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading } = useSWR(`/api/moneyboxExcel/${dateOne}/${dateTwo}`, fetcher, {
+    const { data, error, isLoading } = useSWR(`/api/moneyboxExcel/${dateOne}/${dateTwo}/${idMoneyBox || '1'}`, fetcher, {
         revalidateOnFocus: false,
         revalidateIfStale: false,
         revalidateOnReconnect: false

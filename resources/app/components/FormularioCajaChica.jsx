@@ -8,7 +8,7 @@ import clienteAxios from "../config/axios";
 import Alerta from './Alerta.jsx';
 export default function FormularioCajaChica() {
 
-    const { cargando, editarGasto, crearGasto } = useProyect();
+    const { cargando, editarGasto, crearGasto, idMoneyBox} = useProyect();
     const params = useParams();
     const { id } = params
     const navigate = useNavigate();
@@ -28,7 +28,7 @@ export default function FormularioCajaChica() {
     if (id) {
         urls = [`/api/spents/${id}`]
     } else {
-        urls = [`/api/spents/nroVale`]
+        urls = [`/api/spents/nroVale/${idMoneyBox || '1'}`]
     }
     // console.log(urls)
     const token = localStorage.getItem('AUTH_TOKEN')
@@ -54,7 +54,8 @@ export default function FormularioCajaChica() {
             ingreso,
             nroFactura: nroFactura || 'Sin factura',
             descripcion,
-            custodio: entidad
+            custodio: entidad,
+            idMoneyBox: idMoneyBox || '1'
         }
 
         //console.log(datos)

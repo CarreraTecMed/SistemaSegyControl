@@ -21,7 +21,7 @@ export default function CajaChicaInformationPdf() {
     const { gastoElegido } = useProyect();
     const { nroFactura, nro, gasto: costo, id, descripcion, created_at, interested, manager } = gastoElegido;
     const { nombres, apellidoPaterno, apellidoMaterno } = manager
-    console.log(gastoElegido)
+    // console.log(gastoElegido)
     return (
         <PDFViewer style={styles.container}>
             <Document>

@@ -5,9 +5,13 @@ export default function Encabezado() {
 
     const { filtrado, setFiltrado } = useProyect();
     const location = useLocation();
-    const { view, changeViewMenu, menuMateriales, usuarioLogin, pedido } = useProyect();
+    const { view, changeViewMenu, menuMateriales, usuarioLogin, pedido, idMoneyBox, setIdMoneyBox } = useProyect();
+
+    const token = localStorage.getItem('AUTH_TOKEN')
+
+    // console.log(data)
     return (
-        <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between p-2 rounded-lg shadow-2xl bg-white">
+        <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between p-2 rounded-lg shadow-2xl bg-white w-full">
             <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between w-full lg:mr-5">
                 <p className="font-black md:text-4xl text-3xl text-blue-950 capitalize md:mr-3 text-center">{view}</p>
                 <div className='flex gap-2'>

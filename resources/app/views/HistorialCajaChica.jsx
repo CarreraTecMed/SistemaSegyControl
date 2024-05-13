@@ -11,7 +11,7 @@ import Excel from "../components/Excel";
 
 export default function HistorialCajaChica() {
 
-    const { changeStateModalCajaChicaDocumento, setFechasGasto, crearRecarga, filtrado } = useProyect();
+    const { changeStateModalCajaChicaDocumento, setFechasGasto, crearRecarga, idMoneyBox, crearCajaChica } = useProyect();
 
     const token = localStorage.getItem('AUTH_TOKEN')
 
@@ -20,16 +20,18 @@ export default function HistorialCajaChica() {
     const [errores, setErrores] = useState('');
     const [mostrarExcel, setMostrarExcel] = useState(false);
 
-    const fetcher = () => clienteAxios('/api/moneybox/history', {
+    const idCurrentMoneyBox = idMoneyBox || '1';
+    // console.log(idCurrentMoneyBox)
+    const fetcher = () => clienteAxios(`/api/moneybox/history/${idCurrentMoneyBox}`, {
         headers: {
             Authorization: `Bearer ${token}`
         }
     }).then(data => data.data)
 
-    const { data, error, isLoading, mutate } = useSWR('/api/moneybox/history', fetcher, {
-        revalidateOnFocus: false,
-        revalidateIfStale: false,
-        revalidateOnReconnect: false
+    const { data, error, isLoading, mutate } = useSWR(`/api/moneybox/history/${idCurrentMoneyBox}`, fetcher, {
+        // revalidateOnFocus: false,
+        // revalidateIfStale: false,
+        // revalidateOnReconnect: false
     })
 
 
@@ -100,11 +102,46 @@ export default function HistorialCajaChica() {
         confirmar();
     };
 
-    useEffect(() => {
-        mutate()
-    }, [])
-    if (isLoading) return <Cargando />
+    const handleNewMoneyBox = () => {
+        Swal.fire({
+            title: 'Nueva caja chica',
+            text: "¿Quiere crear una nueva caja chica?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Si, crear"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const mostrarRespuesta = async () => {
+                    const respuesta = await crearCajaChica();
+                    if (Boolean(respuesta)) {
+                        mutate()
+                        Swal.fire({
+                            title: "Creada correctamente!",
+                            text: respuesta,
+                            icon: "success"
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "Error",
+                            title: "Oops...ocurrio un error",
+                            text: "Fallo en el servidor!",
+                        });
+                    }
 
+                }
+                mostrarRespuesta();
+            }
+        });
+    };
+
+    // useEffect(() => {
+    //     mutate()
+    // }, [])
+
+    if (isLoading) return <Cargando />
+    // console.log(data)
     return (
         <>
             <div className="flex max-lg:flex-col max-lg:gap-3 items-center justify-between p-2 rounded-lg shadow-2xl bg-white">
@@ -113,6 +150,13 @@ export default function HistorialCajaChica() {
                         Historial Caja Chica
                     </p>
                     <div className="flex gap-2">
+                        <button
+                            className='bg-green-700 hover:bg-green-800 text-center text-white font-black p-3 rounded-lg flex gap-2'
+                            onClick={() => {
+                                handleNewMoneyBox()
+                            }}
+                        >Nueva caja
+                        </button>
                         <button
                             className='bg-yellow-700 hover:bg-yellow-800 text-center text-white font-black p-3 rounded-lg flex gap-2'
                             onClick={() => {
@@ -153,7 +197,7 @@ export default function HistorialCajaChica() {
                     </select>
                 </div>
             </form>
-            {mostrarExcel && <Excel/>}
+            {mostrarExcel && <Excel />}
             <div className="relative overflow-x-auto mt-3">
                 <table className="w-full text-sm text-center mx-auto">
                     <thead className="text-sm uppercase bg-gray-600 text-white">
@@ -187,10 +231,10 @@ export default function HistorialCajaChica() {
                             <th scope="row" className="font-bold p-1" colSpan={5}>
                             </th>
                             <th scope="row" className="font-bold p-1" colSpan={1}>
-                                0.00 Bs.
+                                {1000 - data.montoInicial} Bs.
                             </th>
                             <th scope="row" className=" font-bold" colSpan={1}>
-                                1000.00 Bs.
+                                {data.montoInicial} Bs.
                             </th>
                         </tr>
                         {
