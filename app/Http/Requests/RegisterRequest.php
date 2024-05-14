@@ -24,8 +24,8 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string'],
-            'app' => ['required', 'string'],
-            'apm' => ['required', 'string'],
+            'app' => [''],
+            'apm' => [''],
             'date' => ['required', 'date'],
             'ci' => ['required', 'string', 'unique:users,ci'],
             'ru' => ['required', 'string', 'unique:students,ru'],

@@ -45,7 +45,7 @@ class UserSeeder extends Seeder
         ]);
 
         DB::table('users')->insert([
-            'ci' => '8441651',
+            'ci' => '4787478',
             'nombres' => 'Roberto',
             'apellidoPaterno' => 'Ayala',
             'apellidoMaterno' => 'Mamani',

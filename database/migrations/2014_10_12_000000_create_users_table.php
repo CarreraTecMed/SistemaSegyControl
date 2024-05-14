@@ -9,14 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+    //  TODO: Arreglar los estudiantes que no sea obligatorios el app o el apm y tambien el diseño de los vales de caja chica
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('ci')->unique();
             $table->string('nombres');
-            $table->string('apellidoPaterno');
-            $table->string('apellidoMaterno');
+            $table->string('apellidoPaterno')->nullable();
+            $table->string('apellidoMaterno')->nullable();
             $table->string('tipo');
             $table->string('estado');
             $table->string('imagen')->unique();

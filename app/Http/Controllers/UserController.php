@@ -98,8 +98,8 @@ class UserController extends Controller
         $request->validate(
             [
                 'name' => ['required', 'string'],
-                'app' => ['required', 'string'],
-                'apm' => ['required', 'string'],
+                'app' => [''],
+                'apm' => [''],
                 'date' => ['required', 'date'],
                 'ci' => ['required', 'string', 'unique:users,ci,' . $id],
                 'ru' => ['required', 'string', Rule::unique('students', 'ru')->ignore($id, 'user_id')],
