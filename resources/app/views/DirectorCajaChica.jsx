@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 
 export default function DirectorCajaChica() {
 
-  const { elegirDirector } = useProyect();
+  const { elegirDirector, idMoneyBox } = useProyect();
 
   const token = localStorage.getItem('AUTH_TOKEN')
 
@@ -39,7 +39,7 @@ export default function DirectorCajaChica() {
       if (result.isConfirmed) {
         const datos = {
           user_id: id,
-          id: '1'
+          id: idMoneyBox || '1'
         }
         const mostrarRespuesta = async () => {
           const respuesta = await elegirDirector(datos);

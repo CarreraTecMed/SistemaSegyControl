@@ -93,7 +93,7 @@ class MoneyBoxController extends Controller
             MoneyBox::create([
                 'nombre' => 'CC. '.$currentYear,
                 'monto' => 1000.00,
-                'user_id' => '3',
+                'user_id' => '2',
                 'director_teacher_id' => '1'
             ]);
 

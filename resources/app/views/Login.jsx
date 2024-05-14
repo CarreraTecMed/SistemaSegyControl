@@ -12,6 +12,7 @@ export default function Login() {
     const { login } = useAuth()
 
     const [errores, setErrores] = useState()
+    const [mostrarContraseña, setMostrarContraseña] = useState(false)
     const nameRef = createRef()
     const passwordRef = createRef()
 
@@ -39,9 +40,19 @@ export default function Login() {
                 </div>
                 <div className="flex flex-col text-gray-400 py-2">
                     <label className="text-gray-200" htmlFor="password">Contraseña</label>
-                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="password" id="password" name='password' placeholder="********" ref={passwordRef} />
+                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type={mostrarContraseña ? 'text' : 'password'} id="password" name='password' placeholder="********" ref={passwordRef} />
                 </div>
                 <button type="submit" className="w-full my-5 py-3 bg-teal-500 shadow-lg shadow-teal-500/40 hover:shadow-teal-500/40 text-white font-semibold rounded-lg" disabled={cargando}>Iniciar Sesion</button>
+                <div className='flex gap-1'>
+                    <label className="text-gray-200" htmlFor="mostrarContra">Mostrar contraseña</label>
+                    <input
+                        className='block'
+                        type='checkbox'
+                        id='mostrarContra'
+                        name='mostrarContra'
+                        onChange={() => setMostrarContraseña(!mostrarContraseña)}
+                    />
+                </div>
                 <nav className="text-white">
                     <Link to="/auth/registro">
                         ¿No tienes cuenta? Crea una
