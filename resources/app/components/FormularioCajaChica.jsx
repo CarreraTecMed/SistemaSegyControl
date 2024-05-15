@@ -22,6 +22,7 @@ export default function FormularioCajaChica() {
     const [nroFactura, setNroFactura] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [entidad, setEntidad] = useState('')
+    const [cantidad, setCantidad] = useState(1)
 
     let urls = []
 
@@ -55,7 +56,8 @@ export default function FormularioCajaChica() {
             nroFactura: nroFactura || 'Sin factura',
             descripcion,
             custodio: entidad,
-            idMoneyBox: idMoneyBox || '1'
+            idMoneyBox: idMoneyBox || '1',
+            cantidad
         }
 
         //console.log(datos)
@@ -77,6 +79,7 @@ export default function FormularioCajaChica() {
             setNroFactura(data[0].nroFactura || '')
             setDescripcion(data[0].descripcion)
             setEntidad(data[0].interested)
+            setCantidad(data[0].cantidad)
         }
 
     }, [isLoading, data])
@@ -134,13 +137,17 @@ export default function FormularioCajaChica() {
                     <label className="text-gray-200 font-bold" htmlFor="nrogasto">Nro de gasto</label>
                     <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="nrogasto" placeholder="Ej. 812512" value={nro} onChange={e => setNro(e.target.value)} />
                 </div>
+                <div className="flex flex-col text-gray-400 mt-2">
+                    <label className="text-gray-200 font-bold" htmlFor="cantidad">Cantidad</label>
+                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="cantidad" placeholder="Ej. 812512" value={cantidad} onChange={e => setCantidad(e.target.value)} />
+                </div>
                 <div className="flex flex-col text-gray-400 py-2">
                     <label className="text-gray-200 font-bold" htmlFor="user">Nro de factura</label>
                     <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="user" placeholder="Ej. 812512" value={nroFactura} onChange={e => setNroFactura(e.target.value)} />
                 </div>
                 <div className="flex flex-col text-gray-400 py-1">
                     <label className="text-gray-200 font-bold" htmlFor="custodio">Custodio</label>
-                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="user" placeholder="Ej. Walter Bustillos" value={entidad} onChange={e => setEntidad(e.target.value)} />
+                    <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="custodio" placeholder="Ej. Walter Bustillos" value={entidad} onChange={e => setEntidad(e.target.value)} />
 
                     {/* <select className='rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white' id="custodio" value={entidad} onChange={e => setEntidad(e.target.value)}>
                         <option value={""}>Elige quien recibira el dinero</option>

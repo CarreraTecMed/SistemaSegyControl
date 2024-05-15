@@ -3,9 +3,10 @@ import { createRef, useState } from "react";
 import Alerta from "./Alerta";
 export default function ModalRecuperarContraseña() {
 
-    const { cargando, usuarioLogin,changeStateModalContraseña, actualizarContraseña } = useProyect();
+    const { cargando, usuarioLogin, changeStateModalContraseña, actualizarContraseña } = useProyect();
 
     const [errores, setErrores] = useState([])
+    const [mostrarContraseñas, setMostrarContraseñas] = useState(false)
 
     const passwordRef = createRef()
     const password_ConfirmationRef = createRef()
@@ -51,7 +52,7 @@ export default function ModalRecuperarContraseña() {
                         <label className="text-gray-200" htmlFor="password">Contraseña</label>
                         <input
                             className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white"
-                            type="password"
+                            type={mostrarContraseñas ? 'text' : 'password'}
                             id="password"
                             name="password"
                             placeholder="Tu contraseña"
@@ -63,7 +64,7 @@ export default function ModalRecuperarContraseña() {
                         <label className="text-gray-200" htmlFor="password_confirmation">Confirmar contraseña</label>
                         <input
                             className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white"
-                            type="password"
+                            type={mostrarContraseñas ? 'text' : 'password'}
                             id="password_confirmation"
                             name="password_confirmation"
                             placeholder="Repite la contraseña"
@@ -73,6 +74,16 @@ export default function ModalRecuperarContraseña() {
 
                     <button type="submit" className="w-full my-5 py-3 bg-teal-500 shadow-lg shadow-teal-500/40 hover:shadow-teal-500/40 text-white font-semibold rounded-lg" disabled={cargando}>Cambiar contraseña</button>
 
+                    <div className='flex gap-1'>
+                        <label className="text-gray-200" htmlFor="mostrarContra">Mostrar contraseñas</label>
+                        <input
+                            className='block'
+                            type='checkbox'
+                            id='mostrarContra'
+                            name='mostrarContra'
+                            onChange={() => setMostrarContraseñas(!mostrarContraseñas)}
+                        />
+                    </div>
                 </form>
             </div>
 

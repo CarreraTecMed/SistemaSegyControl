@@ -54,14 +54,14 @@ class MoneyBoxExport implements WithEvents
 
                 // Establecer el ancho de la columna D a 100 caracteres
                 $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(5);
-                $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(13);
-                $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(12);
-                $event->sheet->getDelegate()->getColumnDimension('D')->setWidth(70);
-                $event->sheet->getDelegate()->getColumnDimension('E')->setWidth(20);
-                $event->sheet->getDelegate()->getColumnDimension('F')->setWidth(13);
-                $event->sheet->getDelegate()->getColumnDimension('G')->setWidth(13);
-                $event->sheet->getDelegate()->getColumnDimension('H')->setWidth(13);
-
+                $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(12);
+                $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(19);
+                $event->sheet->getDelegate()->getColumnDimension('D')->setWidth(12);
+                $event->sheet->getDelegate()->getColumnDimension('E')->setWidth(72);
+                $event->sheet->getDelegate()->getColumnDimension('F')->setWidth(9);
+                $event->sheet->getDelegate()->getColumnDimension('G')->setWidth(9);
+                $event->sheet->getDelegate()->getColumnDimension('H')->setWidth(9);
+                $event->sheet->getDelegate()->getColumnDimension('I')->setWidth(12);
                 // Agregar imagen a la izquierda
                 $drawingLeft = new Drawing();
                 $drawingLeft->setName('Logo');
@@ -76,7 +76,7 @@ class MoneyBoxExport implements WithEvents
                 $drawingRight->setName('Logo');
                 $drawingRight->setDescription('Logo');
                 $drawingRight->setPath(public_path('images/logoTecMed.png'));
-                $drawingRight->setCoordinates('H2');
+                $drawingRight->setCoordinates('I2');
                 $drawingRight->setHeight(100);
                 $drawingRight->setWorksheet($event->sheet->getDelegate());
 
@@ -95,7 +95,7 @@ class MoneyBoxExport implements WithEvents
                 }
 
                 // Agregar título al medio
-                $event->sheet->mergeCells('B2:G6');
+                $event->sheet->mergeCells('B2:H6');
                 $event->sheet->setCellValue('B2', $richText);
                 $event->sheet->getStyle('B2')->applyFromArray([
                     'font' => [
@@ -130,6 +130,9 @@ class MoneyBoxExport implements WithEvents
                                     'color' => ['rgb' => '000000'],
                                 ],
                             ],
+                            'font' => [
+                                'size' => 9
+                            ],
                         ]);
                         $column++;
                     }
@@ -150,7 +153,7 @@ class MoneyBoxExport implements WithEvents
 
                 // Establecer el texto de las líneas de puntos para la firma a la izquierda
                 $responsibleNameLeft = $encargado; // Nombre del responsable para la firma a la izquierda
-                $responsiblePositionLeft = 'RESPONSABLE CAJA CHICA'; // Cargo del responsable para la firma a la izquierda
+                $responsiblePositionLeft = 'Responsable caja chica'; // Cargo del responsable para la firma a la izquierda
 
                 // Establecer el texto de las líneas de puntos para la firma a la derecha
                 $responsibleNameRight = $nombreDirector; // Nombre del responsable para la firma a la derecha
@@ -161,8 +164,8 @@ class MoneyBoxExport implements WithEvents
                 $event->sheet->mergeCells('C' . $leftSignatureRow2 . ':D' . $leftSignatureRow2);
 
                 // Fusionar celdas para las líneas de puntos para la firma a la derecha
-                $event->sheet->mergeCells('E' . $rightSignatureRow1 . ':H' . $rightSignatureRow1);
-                $event->sheet->mergeCells('E' . $rightSignatureRow2 . ':H' . $rightSignatureRow2);
+                $event->sheet->mergeCells('F' . $rightSignatureRow1 . ':I' . $rightSignatureRow1);
+                $event->sheet->mergeCells('F' . $rightSignatureRow2 . ':I' . $rightSignatureRow2);
 
                 // Establecer el valor de las celdas como el texto de las líneas de puntos para la firma a la izquierda
                 $event->sheet->setCellValue('C' . $leftSignatureRow1, '............................................................');
@@ -170,9 +173,9 @@ class MoneyBoxExport implements WithEvents
                 $event->sheet->setCellValue('C' . ($leftSignatureRow2 + 1), $responsiblePositionLeft);
 
                 // Establecer el valor de las celdas como el texto de las líneas de puntos para la firma a la derecha
-                $event->sheet->setCellValue('E' . $rightSignatureRow1, '...........................................................');
-                $event->sheet->setCellValue('E' . $rightSignatureRow2, $responsibleNameRight);
-                $event->sheet->setCellValue('E' . ($rightSignatureRow2 + 1), $responsiblePositionRight);
+                $event->sheet->setCellValue('F' . $rightSignatureRow1, '...........................................................');
+                $event->sheet->setCellValue('F' . $rightSignatureRow2, $responsibleNameRight);
+                $event->sheet->setCellValue('F' . ($rightSignatureRow2 + 1), $responsiblePositionRight);
 
                 // Aplicar bordes a las celdas de las líneas de puntos para la firma a la izquierda
                 $event->sheet->getStyle('C' . $leftSignatureRow1 . ':D' . $leftSignatureRow2)->applyFromArray([
@@ -200,7 +203,7 @@ class MoneyBoxExport implements WithEvents
                 ]);
 
                 // Aplicar negrita al cargo del responsable para la firma a la derecha
-                $event->sheet->getStyle('E' . ($rightSignatureRow2 + 1))->applyFromArray([
+                $event->sheet->getStyle('F' . ($rightSignatureRow2 + 1))->applyFromArray([
                     'font' => [
                         'bold' => true,
                     ],

@@ -14,7 +14,7 @@ export default function FormUsuario() {
   const { id } = params;
   const navigate = useNavigate()
   const [tipoUsuario, setTipoUsuario] = useState('estudiante');
-
+  const [mostrarContraseñas, setMostrarContraseñas] = useState(false);
   const [errores, setErrores] = useState()
   const [file, setFile] = useState({})
   const [nombre, setNombre] = useState('');
@@ -53,7 +53,7 @@ export default function FormUsuario() {
       tipo: tipoUsuario,
       id: id || ''
     }
-    
+
     if (id) {
       // console.log(datos)
       resultado = await editarUsuario(datos, setErrores)
@@ -246,6 +246,19 @@ export default function FormUsuario() {
           </fieldset>
 
           <fieldset className="border border-solid border-yellow-300 px-3 pb-3 mb-3 rounded-lg">
+            {
+              !id && <div className='flex gap-1 justify-center'>
+                <label className="text-gray-200" htmlFor="mostrarContra">Mostrar contraseñas</label>
+                <input
+                  className='block'
+                  type='checkbox'
+                  id='mostrarContra'
+                  name='mostrarContra'
+                  onChange={() => setMostrarContraseñas(!mostrarContraseñas)}
+                />
+              </div>
+            }
+
             <legend className="text-sm text-yellow-500 px-3 py-2 font-bold">Información de cuenta</legend>
             {
               id ?
@@ -256,7 +269,7 @@ export default function FormUsuario() {
                     <label className="text-gray-200" htmlFor="password">Contraseña</label>
                     <input
                       className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white"
-                      type="password"
+                      type={mostrarContraseñas ? 'text' : 'password'}
                       id="password"
                       name="password"
                       placeholder="Tu contraseña"
@@ -269,7 +282,7 @@ export default function FormUsuario() {
                     <label className="text-gray-200" htmlFor="password_confirmation">Confirmar contraseña</label>
                     <input
                       className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white"
-                      type="password"
+                      type={mostrarContraseñas ? 'text' : 'password'}
                       id="password_confirmation"
                       name="password_confirmation"
                       placeholder="Repite la contraseña"

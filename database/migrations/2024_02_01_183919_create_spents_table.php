@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nombre');
             $table->date('fechaCreacion');
             $table->string('nroVale');
+            $table->string('cantidad');
             $table->string('nroFactura')->nullable();
             $table->string('descripcion',500);
             $table->decimal('gasto', 6, 2);

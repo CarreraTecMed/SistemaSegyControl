@@ -900,7 +900,7 @@ const ProyProvider = ({ children }) => {
         const token = localStorage.getItem('AUTH_TOKEN')
 
         try {
-            const { data } = await clienteAxios.post(`/api/recharges/create`, { monto, idMoneyBox }, {
+            const { data } = await clienteAxios.post(`/api/recharges/create`, { monto }, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

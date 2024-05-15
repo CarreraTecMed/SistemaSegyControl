@@ -16,6 +16,7 @@ class Spent extends Model
         "nroFactura",
         "ingreso",
         "descripcion",
+        "cantidad",
         "gasto"
     ];
     use HasFactory;

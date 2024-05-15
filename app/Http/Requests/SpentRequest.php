@@ -27,6 +27,7 @@ class SpentRequest extends FormRequest
             "nroFactura" => ["required", "string"],
             "custodio" => ["required"],
             "descripcion" => ["required","string"],
+            "cantidad" => ['required']
         ];
     }
 
@@ -36,6 +37,7 @@ class SpentRequest extends FormRequest
             "nro.required" => "El nro de vale es obligatorio",
             "nro.unique" => "Ya existe un numero de vale con ese registro",
             "nro.string" => "El nro de vale debe de ser una cadena de caracteres",
+            "cantidad" => "La cantidad es obligatoria",
             "nroFactura.required" => "El nro de factura es obligatorio",
             "nroFactura.unique" => "Ya existe un numero de factura con ese registro",
             "nroFactura.string" => "El nro de factura debe de ser una cadena de caracteres",

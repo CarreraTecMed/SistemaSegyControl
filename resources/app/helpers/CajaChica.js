@@ -9,6 +9,16 @@ export const convertirFecha = (fechaOriginal) => {
     return fechaFormateada;
 }
 
+export const convertirFechaHora = (fechaOriginal) => {
+    const fecha = new Date(fechaOriginal);
+
+    // Configuramos la fecha y hora en formato local y en la zona horaria de Bolivia (GMT-4)
+    const opciones = { timeZone: 'America/La_Paz', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+    const fechaFormateada = fecha.toLocaleString('es-BO', opciones);
+
+    return fechaFormateada;
+}
+
 export const convertirFechaSinHora = (fechaOriginal) => {
     const fecha = new Date(fechaOriginal);
 

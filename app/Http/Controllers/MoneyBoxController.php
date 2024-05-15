@@ -164,14 +164,14 @@ class MoneyBoxController extends Controller
         $pdf->Cell(335, 10, iconv('UTF-8', 'windows-1252', 'CARRERA DE TECNOLOGÍA MÉDICA'), 0, 1, 'C');
         $pdf->Cell(335, 5, '', 0, 1, 'C');
         $pdf->Cell(330, 10, iconv('UTF-8', 'windows-1252', 'DETALLE DE GASTOS DE CAJA CHICA CARRERA DE TECNOLOGÍA MÉDICA'), 0, 1, 'C');
-        $pdf->Cell(330, 8, iconv('UTF-8', 'windows-1252', 'DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo), 0, 1, 'C');
+        $pdf->Cell(330, 8, iconv('UTF-8', 'windows-1252', 'PERIODO: DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo), 0, 1, 'C');
         $pdf->Ln();
         // Definir encabezados de la tabla
-        $header = array('Nro', 'Fecha', 'Factura', 'Detalle', 'Entregado a/Empresa', 'Ingreso', 'Gasto', 'Saldo');
+        $header = array('Nro', 'Fecha', 'Entregado a/Empresa', 'Factura', 'Concepto del gasto', 'Cantidad','Ingreso', 'Gasto', 'Saldo');
 
 
-        $widths = array(10, 40, 30, 150, 40, 20, 20, 20);
-        $aligns = array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C');
+        $widths = array(10, 25, 40, 25,150,20, 20, 20, 20);
+        $aligns = array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C','C');
 
         // Agregar encabezados de tabla
         $pdf->SetFont('Arial', 'B', 10);
@@ -201,8 +201,8 @@ class MoneyBoxController extends Controller
 
         $data = [];
 
-        $pdf->SetWidths(array(10, 40, 30, 150, 40, 20, 20, 20));
-        $pdf->SetAligns(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'));
+        $pdf->SetWidths(array(10, 25, 40, 25,150,20, 20, 20, 20));
+        $pdf->SetAligns(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C','C'));
 
         foreach ($spents as $spent) {
             $fechaCambiada = Carbon::createFromFormat('Y-m-d', isset($spent->fechaCreacion) ? $spent->fechaCreacion : $spent->fechaRecarga);
@@ -216,13 +216,13 @@ class MoneyBoxController extends Controller
                     $montoInicial += number_format($spent->gasto, 2);
                     $gastoInicial -= number_format($spent->gasto, 2);
                 }
-
                 $data[] = [
                     $spent->nro,
                     $fechaCambiada->format('d-m-Y'),
+                    iconv('UTF-8', 'windows-1252', $spent->interested),
                     $spent->nroFactura !== '' && $spent->nroFactura !== null ? $spent->nroFactura : 'Sin factura',
                     iconv('UTF-8', 'windows-1252', $spent->descripcion),
-                    iconv('UTF-8', 'windows-1252', $spent->interested),
+                    iconv('UTF-8', 'windows-1252', $spent->cantidad),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
                     number_format($spent->gasto, 2) . ' Bs.',
                     number_format($montoInicial, 2) . ' Bs.'
@@ -231,6 +231,7 @@ class MoneyBoxController extends Controller
                 $data[] = [
                     '',
                     $fechaCambiada->format('d-m-Y'),
+                    '',
                     '',
                     'DESEMBOLSO CAJA CHICA:',
                     '',
@@ -246,7 +247,7 @@ class MoneyBoxController extends Controller
         //         $data[] = ['1', 'Dato ', 'Dato ', Str::random(rand(1, 250)), 'Dato 1', 'Dato 2','Dato','Dato'];
         //     };
         for ($i = 0; $i < count($data); $i++)
-            $pdf->Row(array($data[$i][0], $data[$i][1], $data[$i][2], $data[$i][3], $data[$i][4], $data[$i][5], $data[$i][6], $data[$i][7]));
+            $pdf->Row(array($data[$i][0], $data[$i][1], $data[$i][2], $data[$i][3], $data[$i][4], $data[$i][5], $data[$i][6], $data[$i][7],$data[$i][8]));
 
         $pdf->SetFont('Arial', 'B', 8);
         $pdf->Cell(270, 10, 'SALDO Y GASTO (DESPUES DE FECHAS)', 1, 0, 'C');
@@ -374,9 +375,10 @@ class MoneyBoxController extends Controller
                 $data[] = [
                     $spent->nro,
                     $fechaCambiada->format('d-m-Y'),
+                    iconv('UTF-8', 'windows-1252', $spent->interested),
                     $spent->nroFactura !== '' && $spent->nroFactura !== null ? $spent->nroFactura : 'Sin factura',
                     iconv('UTF-8', 'windows-1252', $spent->descripcion),
-                    iconv('UTF-8', 'windows-1252', $spent->interested),
+                    iconv('UTF-8', 'windows-1252', $spent->cantidad),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
                     number_format($spent->gasto, 2) . ' Bs.',
                     number_format($montoInicial, 2) . ' Bs.'
@@ -385,6 +387,7 @@ class MoneyBoxController extends Controller
                 $data[] = [
                     '',
                     $fechaCambiada->format('d-m-Y'),
+                    '',
                     '',
                     'DESEMBOLSO CAJA CHICA:',
                     '',
@@ -414,11 +417,11 @@ class MoneyBoxController extends Controller
         // return (new FastExcel($data))->download('users.xlsx');
 
 
-        array_unshift($data, ['', '', '', 'SALDO Y GASTO (ANTES DE FECHAS)', '', '', (string)number_format($gastoInicialPrimero, 2) . ' Bs.', (string)number_format($montoInicialPrimero, 2) . ' Bs.']);
+        array_unshift($data, ['', '', '', '','SALDO Y GASTO (ANTES DE FECHAS)', '','', (string)number_format($gastoInicialPrimero, 2) . ' Bs.', (string)number_format($montoInicialPrimero, 2) . ' Bs.']);
 
-        array_unshift($data, ['Nro', 'Fecha', 'Factura', 'Detalle', 'Entregado a/Empresa', 'Ingreso', 'Gasto', 'Saldo']);
+        array_unshift($data, ['Nro', 'Fecha', 'Entregado a/Empresa', 'Factura', 'Concepto del gasto','Cantidad','Ingreso', 'Gasto', 'Saldo']);
 
-        array_push($data, ['', '', '', 'SALDO Y GASTO (DESPUES DE FECHAS)', '', '', (string)number_format($gastoInicial, 2) . ' Bs.', (string)number_format($montoInicial, 2) . ' Bs.']);
+        array_push($data, ['', '', '', '','SALDO Y GASTO (DESPUES DE FECHAS)', '','', (string)number_format($gastoInicial, 2) . ' Bs.', (string)number_format($montoInicial, 2) . ' Bs.']);
 
         // Guardar el archivo en almacenamiento local
         // return Excel::download(new MoneyBoxExport($data), 'money_box.xlsx');
@@ -427,7 +430,7 @@ class MoneyBoxController extends Controller
             $encargado->nombres . ' ' . $encargado->apellidoPaterno . ' ' . $encargado->apellidoMaterno,
             $nombreDirector,
             $director . ' Carrera Tecnología Médica',
-            'UNIVERSIDAD MAYOR DE SAN ANDRÉS FACULTAD DE MEDICINA, ENFERMERÍA, NUTRICIÓN Y TECNOLOGÍA MÉDICA' . "\n" . 'CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DETALLE DE GASTOS DE CAJA CHICA CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo
+            'UNIVERSIDAD MAYOR DE SAN ANDRÉS FACULTAD DE MEDICINA, ENFERMERÍA, NUTRICIÓN Y TECNOLOGÍA MÉDICA' . "\n" . 'CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DETALLE DE GASTOS DE CAJA CHICA CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'PERIODO: DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo
         ), ExcelWriter::XLSX);
 
         return response()->json(['fileContent' => base64_encode($excelFile)]);

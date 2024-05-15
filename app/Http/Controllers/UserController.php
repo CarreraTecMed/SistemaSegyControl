@@ -226,8 +226,7 @@ class UserController extends Controller
     }
 
     public function updatePassword(Request $request) {
-        
-
+    
         $data = $request->validate([
             'password' => ['required', 'confirmed', PasswordRules::min(8)->letters()->symbols()->numbers()],
         ], [
@@ -238,6 +237,13 @@ class UserController extends Controller
         $usuario->password = bcrypt($data['password']);
         $usuario->resetear = '0';
         $usuario->save();
+        $money_box = MoneyBox::find('1')->where('user_id', '=', $usuario->id)->get();
+
+        if (isset($money_box[0]['user_id'])) {
+            $usuario->encargado_caja_chica = 'Es encargado';
+        } else {
+            $usuario->encargado_caja_chica = 'No es encargado';
+        };
         $rutaArchivo = asset('storage/perfiles/' . $usuario->imagen);
         $usuario->imagen = $rutaArchivo;
         return ['user' => $usuario];

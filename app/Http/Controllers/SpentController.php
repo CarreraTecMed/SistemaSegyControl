@@ -68,6 +68,7 @@ class SpentController extends Controller
                 "fechaCreacion" => Carbon::now(),
                 "nroFactura" => $data['nroFactura'] === 'Sin factura' ? '' : $data['nroFactura'],
                 "descripcion" => $data['descripcion'],
+                "cantidad" => $data['cantidad'],
                 "gasto" => $data['gasto'],
                 "interested" => $data['custodio'],
                 "ingreso" => $request['ingreso']
@@ -99,10 +100,12 @@ class SpentController extends Controller
                 "nroFactura" => ["required", "string"],
                 "custodio" => ["required"],
                 "descripcion" => ["required", "string"],
+                "cantidad" => ['required']
             ], [
                 "nro.required" => "El nro de vale es obligatorio",
                 "nro.unique" => "Ya existe un numero de vale con ese registro",
                 "nro.string" => "El nro de vale debe de ser una cadena de caracteres",
+                "cantidad" => "La cantidad es obligatoria",
                 "nroFactura.required" => "El nro de factura es obligatorio",
                 "nroFactura.unique" => "Ya existe un numero de factura con ese registro",
                 "nroFactura.string" => "El nro de factura debe de ser una cadena de caracteres",
@@ -146,7 +149,7 @@ class SpentController extends Controller
             }
 
             $spent->nro = $request->nro;
-
+            $spent->cantidad = $request->cantidad;
             $spent->ingreso = $request->ingreso;
 
             $spent->save();
