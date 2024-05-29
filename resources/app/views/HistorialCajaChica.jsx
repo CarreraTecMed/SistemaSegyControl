@@ -227,41 +227,41 @@ export default function HistorialCajaChica() {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr className="bg-blue-500 border-b text-white text-sm">
+                        <tr className="bg-blue-500 border-b text-white text-xs">
                             <th scope="row" className="font-bold p-1" colSpan={5}>
                             </th>
                             <th scope="row" className="font-bold p-1" colSpan={1}>
-                                {1000 - data.montoInicial} Bs.
+                                {1000 - data.montoInicial}
                             </th>
                             <th scope="row" className=" font-bold" colSpan={1}>
-                                {data.montoInicial} Bs.
+                                {data.montoInicial}
                             </th>
                         </tr>
                         {
                             data?.gastos?.map(gasto => {
                                 if (gasto.descripcion) {
                                     return (
-                                        <tr className="bg-white border-b p-2" key={gasto.id}>
+                                        <tr className="bg-white border-b p-1 text-xs" key={gasto.id}>
                                             <td className="">
                                                 {gasto.nro}
                                             </td>
-                                            <th scope="row" className="p-2 font-medium">
+                                            <th scope="row" className="p-1 font-medium">
                                                 {convertirFechaSinHora(gasto.created_at)}
                                             </th>
-                                            <td className="p-2">
+                                            <td className="p-1">
                                                 {gasto.nroFactura || 'Sin número de factura'}
                                             </td>
-                                            <td className="p-2">
+                                            <td className="p-1">
                                                 {gasto.descripcion}
                                             </td>
-                                            <td className="font-bold p-2">
-                                                {gasto.ingreso !== 'no' ? `${gasto.gasto} Bs.` : ''}
+                                            <td className="font-bold p-1">
+                                                {gasto.ingreso !== 'no' ? `${gasto.gasto}` : ''}
                                             </td>
-                                            <td className="font-bold p-2">
-                                                {gasto.gasto} Bs.
+                                            <td className="font-bold p-1">
+                                                {gasto.gasto}
                                             </td>
-                                            <td className="font-bold p-2">
-                                                {gasto.saldo} Bs.
+                                            <td className="font-bold p-1">
+                                                {gasto.saldo}
                                             </td>
                                         </tr>
                                     )
@@ -275,13 +275,13 @@ export default function HistorialCajaChica() {
                                                 Fecha desembolso: {convertirFecha(gasto.created_at)}
                                             </th>
                                             <th scope="row" className="font-bold" colSpan={1}>
-                                                {gasto.montoRecarga} Bs.
+                                                {gasto.montoRecarga}
                                             </th>
                                             <th scope="row" className="font-bold p-2" colSpan={1}>
 
                                             </th>
                                             <th scope="row" className="font-bold p-2" colSpan={1}>
-                                                {gasto.saldo} Bs.
+                                                {gasto.saldo}
                                             </th>
                                         </tr>
 
@@ -290,11 +290,11 @@ export default function HistorialCajaChica() {
                             }
                             )
                         }
-                        <tr className="bg-blue-500 border-b text-white text-sm">
+                        <tr className="bg-blue-500 border-b text-white text-xs">
                             <th scope="row" className="font-bold p-1" colSpan={5}>
                                 GASTO TOTAL</th>
                             <th scope="row" className="font-bold p-1" colSpan={1}>
-                                {data.gastoAcumulado} Bs.
+                                {data.gastoAcumulado}
                             </th>
                             <th scope="row" className="font-bold p-1" colSpan={1}>
                             </th>

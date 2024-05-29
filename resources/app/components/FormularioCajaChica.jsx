@@ -134,7 +134,7 @@ export default function FormularioCajaChica() {
                 } */}
 
                 <div className="flex flex-col text-gray-400 mt-2">
-                    <label className="text-gray-200 font-bold" htmlFor="nrogasto">Nro de gasto</label>
+                    <label className="text-gray-200 font-bold" htmlFor="nrogasto">Nro de Comprobante</label>
                     <input className="rounded-lg bg-gray-700 mt-2 p-2 focus:border-blue-500 focus:bg-gray-800 focus:outline-none text-white" type="text" id="nrogasto" placeholder="Ej. 812512" value={nro} onChange={e => setNro(e.target.value)} />
                 </div>
                 <div className="flex flex-col text-gray-400 mt-2">

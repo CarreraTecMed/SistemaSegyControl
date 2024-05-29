@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\RichText\RichText;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
@@ -20,14 +21,16 @@ class MoneyBoxExport implements WithEvents
      * @return \Illuminate\Support\Collection
      */
     protected $data;
+    protected $ultimaInformacion;
     protected $encargado;
     protected $director;
     protected $nombreDirector;
     protected $titulo;
 
-    public function __construct($data, $encargado, $nombreDirector, $director, $titulo)
+    public function __construct($data, $ultimaInformacion, $encargado, $nombreDirector, $director, $titulo)
     {
         $this->data = $data;
+        $this->ultimaInformacion = $ultimaInformacion;
         $this->encargado = $encargado;
         $this->director = $director;
         $this->nombreDirector = $nombreDirector;
@@ -41,27 +44,29 @@ class MoneyBoxExport implements WithEvents
     public function registerEvents(): array
     {
         $data = $this->data;
+        $ultimaInformacion = $this->ultimaInformacion;
         $encargado = $this->encargado;
         $director = $this->director;
         $nombreDirector = $this->nombreDirector;
         $titulo = $this->titulo;
 
         return [
-            AfterSheet::class => function (AfterSheet $event) use ($data, $encargado, $director, $nombreDirector, $titulo) {
-
+            AfterSheet::class => function (AfterSheet $event) use ($data, $ultimaInformacion, $encargado, $director, $nombreDirector, $titulo) {
+                $sheet = $event->sheet->getDelegate();
                 $event->sheet->getPageSetup()->setPaperSize(PageSetup::PAPERSIZE_LEGAL);
                 $event->sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
 
                 // Establecer el ancho de la columna D a 100 caracteres
                 $event->sheet->getDelegate()->getColumnDimension('A')->setWidth(5);
-                $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(12);
-                $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(19);
-                $event->sheet->getDelegate()->getColumnDimension('D')->setWidth(12);
-                $event->sheet->getDelegate()->getColumnDimension('E')->setWidth(72);
-                $event->sheet->getDelegate()->getColumnDimension('F')->setWidth(9);
-                $event->sheet->getDelegate()->getColumnDimension('G')->setWidth(9);
-                $event->sheet->getDelegate()->getColumnDimension('H')->setWidth(9);
-                $event->sheet->getDelegate()->getColumnDimension('I')->setWidth(12);
+                $event->sheet->getDelegate()->getColumnDimension('B')->setWidth(5);
+                $event->sheet->getDelegate()->getColumnDimension('C')->setWidth(10);
+                $event->sheet->getDelegate()->getColumnDimension('D')->setWidth(17);
+                $event->sheet->getDelegate()->getColumnDimension('E')->setWidth(8);
+                $event->sheet->getDelegate()->getColumnDimension('F')->setWidth(82);
+                $event->sheet->getDelegate()->getColumnDimension('G')->setWidth(7);
+                $event->sheet->getDelegate()->getColumnDimension('H')->setWidth(7);
+                $event->sheet->getDelegate()->getColumnDimension('I')->setWidth(7);
+                $event->sheet->getDelegate()->getColumnDimension('J')->setWidth(7);
                 // Agregar imagen a la izquierda
                 $drawingLeft = new Drawing();
                 $drawingLeft->setName('Logo');
@@ -142,14 +147,41 @@ class MoneyBoxExport implements WithEvents
                     $event->sheet->getStyle('A8:' . $column . ($row - 1))->getAlignment()->setHorizontal('left');
                     $event->sheet->getStyle('A8:' . $column . ($row - 1))->getAlignment()->setShrinkToFit(true);
                 }
+                $row++;
+                // Escribir los datos adicionales en $ultimaInformacion
+                foreach ($ultimaInformacion as $additionalRowData) {
+                    $column = 'F'; // Comenzar en la columna F
+                    foreach ($additionalRowData as $cellData) {
+                        $event->sheet->setCellValue($column . $row, $cellData);
+                        $event->sheet->getStyle($column . $row)->applyFromArray([
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['rgb' => '000000'],
+                                ],
+                            ],
+                            'font' => [
+                                'size' => 9
+                            ],
+                        ]);
+                        $column++;
+                    }
+                    $row++;
+                }
+
+                // Agregar espacio entre las filas
+                $row++;
+                $row++;
+                $row++;
+                $row++;
 
                 // Agregar líneas de puntos para la firma a la izquierda
-                $leftSignatureRow1 = count($data) + 11; // Primera fila para la firma a la izquierda
-                $leftSignatureRow2 = count($data) + 12; // Segunda fila para la firma a la izquierda
+                $leftSignatureRow1 = count($data) + 17; // Primera fila para la firma a la izquierda
+                $leftSignatureRow2 = count($data) + 18; // Segunda fila para la firma a la izquierda
 
                 // Agregar líneas de puntos para la firma a la derecha
-                $rightSignatureRow1 = count($data) + 11; // Primera fila para la firma a la derecha
-                $rightSignatureRow2 = count($data) + 12; // Segunda fila para la firma a la derecha
+                $rightSignatureRow1 = count($data) + 17; // Primera fila para la firma a la derecha
+                $rightSignatureRow2 = count($data) + 18; // Segunda fila para la firma a la derecha
 
                 // Establecer el texto de las líneas de puntos para la firma a la izquierda
                 $responsibleNameLeft = $encargado; // Nombre del responsable para la firma a la izquierda
@@ -159,13 +191,30 @@ class MoneyBoxExport implements WithEvents
                 $responsibleNameRight = $nombreDirector; // Nombre del responsable para la firma a la derecha
                 $responsiblePositionRight = $director; // Cargo del responsable para la firma a la derecha
 
+                // Obtener el estilo de las celdas para la firma a la derecha (nombre)
+                $styleNameRight = $sheet->getStyle('F' . ($rightSignatureRow2 + 1));
+                // Establecer la alineación horizontal del nombre a la derecha
+                $styleNameRight->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+                $styleNameRight = $sheet->getStyle('F' . $rightSignatureRow2);
+                // Establecer la alineación horizontal del nombre a la derecha
+                $styleNameRight->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+                // Obtener el estilo de las celdas para la firma a la derecha (cargo)
+                $stylePositionRight = $sheet->getStyle('F' . ($rightSignatureRow1));
+                // Establecer la alineación horizontal del cargo a la derecha
+                $stylePositionRight->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+
+
                 // Fusionar celdas para las líneas de puntos para la firma a la izquierda
-                $event->sheet->mergeCells('C' . $leftSignatureRow1 . ':D' . $leftSignatureRow1);
-                $event->sheet->mergeCells('C' . $leftSignatureRow2 . ':D' . $leftSignatureRow2);
+                $event->sheet->mergeCells('C' . $leftSignatureRow1 . ':E' . $leftSignatureRow1);
+                $event->sheet->mergeCells('C' . $leftSignatureRow2 . ':E' . $leftSignatureRow2);
 
                 // Fusionar celdas para las líneas de puntos para la firma a la derecha
-                $event->sheet->mergeCells('F' . $rightSignatureRow1 . ':I' . $rightSignatureRow1);
-                $event->sheet->mergeCells('F' . $rightSignatureRow2 . ':I' . $rightSignatureRow2);
+                $event->sheet->mergeCells('F' . $rightSignatureRow1);
+
+                $event->sheet->mergeCells('F' . $rightSignatureRow2);
 
                 // Establecer el valor de las celdas como el texto de las líneas de puntos para la firma a la izquierda
                 $event->sheet->setCellValue('C' . $leftSignatureRow1, '............................................................');
@@ -173,12 +222,13 @@ class MoneyBoxExport implements WithEvents
                 $event->sheet->setCellValue('C' . ($leftSignatureRow2 + 1), $responsiblePositionLeft);
 
                 // Establecer el valor de las celdas como el texto de las líneas de puntos para la firma a la derecha
+
                 $event->sheet->setCellValue('F' . $rightSignatureRow1, '...........................................................');
                 $event->sheet->setCellValue('F' . $rightSignatureRow2, $responsibleNameRight);
                 $event->sheet->setCellValue('F' . ($rightSignatureRow2 + 1), $responsiblePositionRight);
 
                 // Aplicar bordes a las celdas de las líneas de puntos para la firma a la izquierda
-                $event->sheet->getStyle('C' . $leftSignatureRow1 . ':D' . $leftSignatureRow2)->applyFromArray([
+                $event->sheet->getStyle('C' . $leftSignatureRow1 . ':E' . $leftSignatureRow2)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_NONE, // No hay bordes
@@ -187,7 +237,7 @@ class MoneyBoxExport implements WithEvents
                 ]);
 
                 // Aplicar bordes a las celdas de las líneas de puntos para la firma a la derecha
-                $event->sheet->getStyle('E' . $rightSignatureRow1 . ':H' . $rightSignatureRow2)->applyFromArray([
+                $event->sheet->getStyle('E' . $rightSignatureRow1)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_NONE, // No hay bordes

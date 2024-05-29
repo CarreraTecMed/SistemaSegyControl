@@ -27,7 +27,7 @@ class LimpiarBackups extends Command
      */
     public function handle()
     {
-        $dias_retencion = 7; // Número de días para retener los backups nuevos
+        $dias_retencion = 6; // Número de días para retener los backups nuevos
 
         $archivos = Storage::files('Laravel/');
 

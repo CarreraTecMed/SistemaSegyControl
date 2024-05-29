@@ -47,7 +47,7 @@ class OrderController extends Controller
                     'cantidad' => $material['cantidad']
                 ]);
                 $materialEditar = Material::find($material['id']);
-                $materialEditar->cantidad_utilizada = $materialEditar->cantidad_disponible - $material['cantidad'];
+                $materialEditar->cantidad_utilizada = $materialEditar->cantidad_utilizada - $material['cantidad'];
                 $materialEditar->update();
             }
 

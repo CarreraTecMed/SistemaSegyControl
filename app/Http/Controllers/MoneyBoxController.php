@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Excel as ExcelWriter;
 use PDF;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MoneyBoxController extends Controller
 {
@@ -55,10 +56,9 @@ class MoneyBoxController extends Controller
     {
         $cajaChica = MoneyBox::find($id);
         $spents = Spent::orderBy('created_at', 'desc')->where('money_boxes_id', $cajaChica->id)->get();
-        $recharges = Recharge::where('money_box_id',$id)->get();
+        $recharges = Recharge::where('money_box_id', $id)->get();
         // $spents = Spent::all();
         $spentsRecharges = $spents->concat($recharges)->sortBy('created_at')->values();
-
         $montoInicial = $cajaChica->monto;
         $gastos = 1000 - $cajaChica->monto;
 
@@ -91,7 +91,7 @@ class MoneyBoxController extends Controller
         try {
             $currentYear = Carbon::now()->year;
             MoneyBox::create([
-                'nombre' => 'CC. '.$currentYear,
+                'nombre' => 'CC. ' . $currentYear,
                 'monto' => 1000.00,
                 'user_id' => '2',
                 'director_teacher_id' => '1'
@@ -122,6 +122,14 @@ class MoneyBoxController extends Controller
 
         $spentsModel = Spent::where('money_boxes_id', $id)->get();
         $spentsRecharges = $spentsModel->concat($recharges)->sortBy('created_at')->values();
+
+        $ultimaRecarga = [];
+        if (count($recharges) > 0) {
+            $ultimaRecarga = $recharges[count($recharges) - 1];
+        } else {
+            $ultimaRecarga = ['id' => '0'];
+        }
+
         $montoInicial = $cajaChica->monto;
         $gastoInicial = 1000 - $cajaChica->monto;
 
@@ -167,24 +175,26 @@ class MoneyBoxController extends Controller
         $pdf->Cell(330, 8, iconv('UTF-8', 'windows-1252', 'PERIODO: DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo), 0, 1, 'C');
         $pdf->Ln();
         // Definir encabezados de la tabla
-        $header = array('Nro', 'Fecha', 'Entregado a/Empresa', 'Factura', 'Concepto del gasto', 'Cantidad','Ingreso', 'Gasto', 'Saldo');
+        $header = array('Nro', 'Nro de Cbtes.', 'Fecha', 'Nombre beneficiario', 'Factura', 'Concepto del gasto', 'Cantidad', 'Ingreso', 'Gasto', 'Saldo');
 
 
-        $widths = array(10, 25, 40, 25,150,20, 20, 20, 20);
-        $aligns = array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C','C');
-
+        $widths = array(8, 12, 15, 40, 25, 150, 20, 20, 20, 20);
+        $aligns = array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C');
+        $pdf->SetWidths($widths);
+        $pdf->SetAligns($aligns);
         // Agregar encabezados de tabla
-        $pdf->SetFont('Arial', 'B', 10);
-        for ($i = 0; $i < count($header); $i++) {
-            $pdf->Cell($widths[$i], 10, $header[$i], 1, 0, 'C');
-        }
+        $pdf->SetFont('Arial', 'B', 8);
+
+
+        // $pdf->Cell($widths[$i], 10, $header[$i], 1, 0, 'C');
+        $pdf->Row(array($header[0], $header[1], $header[2], $header[3], $header[4], $header[5], $header[6], $header[7], $header[8], $header[9]));
+
 
         $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Ln();
         $pdf->Cell(270, 10, 'SALDO Y GASTO (ANTES DE FECHAS)', 1, 0, 'C');
         $pdf->Cell(20, 10, '', 1, 0, 'C');
-        $pdf->Cell(20, 10, number_format($gastoInicial, 2) . ' Bs.', 1, 0, 'C');
-        $pdf->Cell(20, 10, number_format($montoInicial, 2) . ' Bs.', 1, 0, 'C');
+        $pdf->Cell(20, 10, number_format($gastoInicial, 2), 1, 0, 'C');
+        $pdf->Cell(20, 10, number_format($montoInicial, 2), 1, 0, 'C');
         $pdf->Ln();
 
         $pdf->SetFont('Arial', '', 8);
@@ -201,8 +211,12 @@ class MoneyBoxController extends Controller
 
         $data = [];
 
-        $pdf->SetWidths(array(10, 25, 40, 25,150,20, 20, 20, 20));
-        $pdf->SetAligns(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C','C'));
+        $pdf->SetWidths($widths);
+        $pdf->SetAligns($aligns);
+
+        $nroVales = 1;
+        $gastoEncontrado = false;
+        $gastoPorcentaje = 0;
 
         foreach ($spents as $spent) {
             $fechaCambiada = Carbon::createFromFormat('Y-m-d', isset($spent->fechaCreacion) ? $spent->fechaCreacion : $spent->fechaRecarga);
@@ -217,6 +231,7 @@ class MoneyBoxController extends Controller
                     $gastoInicial -= number_format($spent->gasto, 2);
                 }
                 $data[] = [
+                    $nroVales,
                     $spent->nro,
                     $fechaCambiada->format('d-m-Y'),
                     iconv('UTF-8', 'windows-1252', $spent->interested),
@@ -224,42 +239,97 @@ class MoneyBoxController extends Controller
                     iconv('UTF-8', 'windows-1252', $spent->descripcion),
                     iconv('UTF-8', 'windows-1252', $spent->cantidad),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
-                    number_format($spent->gasto, 2) . ' Bs.',
-                    number_format($montoInicial, 2) . ' Bs.'
+                    number_format($spent->gasto, 2),
+                    number_format($montoInicial, 2)
                 ];
             } else { //desembolso
+                if ($spent->id === $ultimaRecarga->id) {
+                    $gastoEncontrado = true;
+                }
                 $data[] = [
+                    $nroVales,
                     '',
                     $fechaCambiada->format('d-m-Y'),
                     '',
                     '',
                     'DESEMBOLSO CAJA CHICA:',
                     '',
-                    $spent->montoRecarga . ' Bs.',
+                    $spent->montoRecarga,
                     '',
-                    number_format(($montoInicial + $spent->montoRecarga), 2) . ' Bs.'
+                    number_format(($montoInicial + $spent->montoRecarga), 2)
                 ];
-                $gastoInicial -= number_format($spent->montoRecarga, 2);
+                // $gastoInicial -= number_format($spent->montoRecarga, 2);
                 $montoInicial += number_format($spent->montoRecarga, 2);
             }
+            $nroVales += 1;
         };
         // for ($i = 0; $i < 22; $i++){ 
         //         $data[] = ['1', 'Dato ', 'Dato ', Str::random(rand(1, 250)), 'Dato 1', 'Dato 2','Dato','Dato'];
         //     };
+
+        if (!$gastoEncontrado) { // No hay recargas
+            $gastoPorcentaje = $gastoInicial;
+        } else {
+            $gastoEncontrado = false;
+            foreach ($spents as $spent) {
+                $fechaCambiada = Carbon::createFromFormat('Y-m-d', isset($spent->fechaCreacion) ? $spent->fechaCreacion : $spent->fechaRecarga);
+
+                if (isset($spent->fechaCreacion)) { //gasto 
+                    if ($gastoEncontrado) {
+                        $gastoPorcentaje += number_format($spent->gasto, 2);
+                    }
+                } else { //desembolso
+                    if ($spent->id === $ultimaRecarga->id) {
+                        $gastoEncontrado = true;
+                    }
+                }
+            }
+        }
+        $pdf->SetFont('Arial', '', 7);
         for ($i = 0; $i < count($data); $i++)
-            $pdf->Row(array($data[$i][0], $data[$i][1], $data[$i][2], $data[$i][3], $data[$i][4], $data[$i][5], $data[$i][6], $data[$i][7],$data[$i][8]));
+            $pdf->Row(array($data[$i][0], $data[$i][1], $data[$i][2], $data[$i][3], $data[$i][4], $data[$i][5], $data[$i][6], $data[$i][7], $data[$i][8], $data[$i][9]));
 
         $pdf->SetFont('Arial', 'B', 8);
         $pdf->Cell(270, 10, 'SALDO Y GASTO (DESPUES DE FECHAS)', 1, 0, 'C');
         $pdf->Cell(20, 10, '', 1, 0, 'C');
-        $pdf->Cell(20, 10, number_format($gastoInicial, 2) . ' Bs.', 1, 0, 'C');
-        $pdf->Cell(20, 10, number_format($montoInicial, 2) . ' Bs.', 1, 0, 'C');
+        $pdf->Cell(20, 10, number_format($gastoInicial, 2), 1, 0, 'C');
+        $pdf->Cell(20, 10, number_format($montoInicial, 2), 1, 0, 'C');
 
-        $pdf->SetFont('Arial', '', 10);
+        $porcentajeGastos = ($gastoPorcentaje / 1000) * 100;
+        $saldoSobrante = 1000 - $gastoPorcentaje;
+        $porcentajeSobrante = ($saldoSobrante / 1000) * 100;
+        $ultimaInformacion =
+            [
+                array('DETALLE', 'IMPORTE', '%'),
+                array('TOTAL CAJA CHICA ASIGNADO Bs.', '1000', '100%'),
+                array('TOTAL GASTO Bs.', $gastoPorcentaje, (string)$porcentajeGastos . '%'),
+                array('SALDO DISPONIBLE', $saldoSobrante, (string)$porcentajeSobrante . '%')
+            ];
+        $pdf->SetWidths(array('70', '30', '30'));
+        $pdf->SetAligns(array('C', 'C', 'C'));
+        // $pdf->Row(array($informacionUltima[0],$informacionUltima[1],$informacionUltima[2]));
+        $pdf->Ln();
+        $pdf->Ln();
+        $pdf->SetX(200);
 
-        $encargado = $cajaChica->manager;
-        $director = $cajaChica->director;
+        if ($pdf->GetY() >= 200) {
+            $this->AddPage('L', 'Legal');
+            $pdf->SetXY(10, 30);
+        }
 
+        for ($i = 0; $i < count($ultimaInformacion); $i++) {
+            if ($i === 0 || $i === 3) {
+                $pdf->SetFont('Arial', 'B', 8);
+            } else {
+                $pdf->SetFont('Arial', '', 8);
+            }
+            $pdf->Cell(100, 5, iconv('UTF-8', 'windows-1252', $ultimaInformacion[$i][0]), 1, 0, 'C');
+            $pdf->Cell(30, 5, iconv('UTF-8', 'windows-1252', $ultimaInformacion[$i][1]), 1, 0, 'C');
+            $pdf->Cell(10, 5, iconv('UTF-8', 'windows-1252', $ultimaInformacion[$i][2]), 1, 0, 'C');
+            $pdf->Ln();
+            $pdf->SetX(200);
+        }
+        $pdf->Ln();
         if ($pdf->GetY() >= 200) {
             $this->AddPage('L', 'Legal');
             $pdf->SetXY(10, 30);
@@ -282,6 +352,12 @@ class MoneyBoxController extends Controller
         $pdf->Cell(100, 5, '........................................................................', 0, 0, 'C');
         // $pdf->SetXY(60, 180);
         $pdf->Ln();
+
+        $pdf->SetFont('Arial', '', 10);
+
+        $encargado = $cajaChica->manager;
+        $director = $cajaChica->director;
+
         $pdf->Cell(190, 5, iconv('UTF-8', 'windows-1252', $encargado->nombres . ' ' . $encargado->apellidoPaterno . ' ' . $encargado->apellidoMaterno), 0, 0, 'C');
         // $pdf->Cell(100, 5, 'Maria del Carmen Murillo de Espinoza');
         $pdf->Cell(100, 5, iconv('UTF-8', 'windows-1252', $director->gradoAcademico . ' ' . $director->nombreCompleto), 0, 0, 'C');
@@ -315,6 +391,14 @@ class MoneyBoxController extends Controller
 
         $spentsModel = Spent::where('money_boxes_id', $id)->get();
         $spentsRecharges = $spentsModel->concat($recharges)->sortBy('created_at')->values();
+
+        $ultimaRecarga = [];
+        if (count($recharges) > 0) {
+            $ultimaRecarga = $recharges[count($recharges) - 1];
+        } else {
+            $ultimaRecarga = ['id' => '0'];
+        }
+
         $montoInicial = $cajaChica->monto;
         $gastoInicial = 1000 - $cajaChica->monto;
 
@@ -358,6 +442,9 @@ class MoneyBoxController extends Controller
         //Datos
 
         $data = [];
+        $nroVales = 1;
+        $gastoEncontrado = false;
+        $gastoPorcentaje = 0;
 
         foreach ($spents as $spent) {
             $fechaCambiada = Carbon::createFromFormat('Y-m-d', isset($spent->fechaCreacion) ? $spent->fechaCreacion : $spent->fechaRecarga);
@@ -373,32 +460,70 @@ class MoneyBoxController extends Controller
                 }
 
                 $data[] = [
+                    $nroVales,
                     $spent->nro,
                     $fechaCambiada->format('d-m-Y'),
                     iconv('UTF-8', 'windows-1252', $spent->interested),
                     $spent->nroFactura !== '' && $spent->nroFactura !== null ? $spent->nroFactura : 'Sin factura',
-                    iconv('UTF-8', 'windows-1252', $spent->descripcion),
+                    //iconv('UTF-8', 'windows-1252', $spent->descripcion),
+                    // mb_convert_encoding($spent->descripcion, 'Windows-1252', 'UTF-8'),
+                    $spent->descripcion,
                     iconv('UTF-8', 'windows-1252', $spent->cantidad),
                     $spent->ingreso === 'no' ? '' : number_format($spent->gasto, 2),
-                    number_format($spent->gasto, 2) . ' Bs.',
-                    number_format($montoInicial, 2) . ' Bs.'
+                    number_format($spent->gasto, 2),
+                    number_format($montoInicial, 2)
                 ];
             } else { //desembolso
+                if ($spent->id === $ultimaRecarga->id) {
+                    $gastoEncontrado = true;
+                }
                 $data[] = [
+                    $nroVales,
                     '',
                     $fechaCambiada->format('d-m-Y'),
                     '',
                     '',
                     'DESEMBOLSO CAJA CHICA:',
                     '',
-                    $spent->montoRecarga . ' Bs.',
+                    $spent->montoRecarga,
                     '',
-                    number_format(($montoInicial + $spent->montoRecarga), 2) . ' Bs.'
+                    number_format(($montoInicial + $spent->montoRecarga), 2)
                 ];
-                $gastoInicial -= number_format($spent->montoRecarga, 2);
+                // $gastoInicial -= number_format($spent->montoRecarga, 2);
                 $montoInicial += number_format($spent->montoRecarga, 2);
             }
+            $nroVales += 1;
         };
+
+        if (!$gastoEncontrado) { // No hay recargas
+            $gastoPorcentaje = $gastoInicial;
+        } else {
+            $gastoEncontrado = false;
+            foreach ($spents as $spent) {
+                $fechaCambiada = Carbon::createFromFormat('Y-m-d', isset($spent->fechaCreacion) ? $spent->fechaCreacion : $spent->fechaRecarga);
+
+                if (isset($spent->fechaCreacion)) { //gasto 
+                    if ($gastoEncontrado) {
+                        $gastoPorcentaje += number_format($spent->gasto, 2);
+                    }
+                } else { //desembolso
+                    if ($spent->id === $ultimaRecarga->id) {
+                        $gastoEncontrado = true;
+                    }
+                }
+            }
+        }
+
+        $porcentajeGastos = ($gastoPorcentaje / 1000) * 100;
+        $saldoSobrante = 1000 - $gastoPorcentaje;
+        $porcentajeSobrante = ($saldoSobrante / 1000) * 100;
+        $ultimaInformacion =
+            [
+                array('DETALLE', 'IMPORTE', '%'),
+                array('TOTAL CAJA CHICA ASIGNADO Bs.', '1000', '100%'),
+                array('TOTAL GASTO Bs.', $gastoPorcentaje, (string)$porcentajeGastos . '%'),
+                array('SALDO DISPONIBLE', $saldoSobrante, (string)$porcentajeSobrante . '%')
+            ];
         // for ($i = 0; $i < 22; $i++){ 
         //         $data[] = ['1', 'Dato ', 'Dato ', Str::random(rand(1, 250)), 'Dato 1', 'Dato 2','Dato','Dato'];
         //     };
@@ -417,23 +542,24 @@ class MoneyBoxController extends Controller
         // return (new FastExcel($data))->download('users.xlsx');
 
 
-        array_unshift($data, ['', '', '', '','SALDO Y GASTO (ANTES DE FECHAS)', '','', (string)number_format($gastoInicialPrimero, 2) . ' Bs.', (string)number_format($montoInicialPrimero, 2) . ' Bs.']);
+        array_unshift($data, ['', '', '', '', '', 'SALDO Y GASTO (ANTES DE FECHAS)', '', '', (string)number_format($gastoInicialPrimero, 2), (string)number_format($montoInicialPrimero, 2)]);
 
-        array_unshift($data, ['Nro', 'Fecha', 'Entregado a/Empresa', 'Factura', 'Concepto del gasto','Cantidad','Ingreso', 'Gasto', 'Saldo']);
+        array_unshift($data, ['Nro', 'Nro de Cbtes.', 'Fecha', 'Nombre beneficiario', 'Factura', 'Concepto del gasto', 'Cantidad', 'Ingreso', 'Gasto', 'Saldo']);
 
-        array_push($data, ['', '', '', '','SALDO Y GASTO (DESPUES DE FECHAS)', '','', (string)number_format($gastoInicial, 2) . ' Bs.', (string)number_format($montoInicial, 2) . ' Bs.']);
+        array_push($data, ['', '', '', '', '', 'SALDO Y GASTO (DESPUES DE FECHAS)', '', '', (string)number_format($gastoInicial, 2), (string)number_format($montoInicial, 2)]);
 
-        // Guardar el archivo en almacenamiento local
-        // return Excel::download(new MoneyBoxExport($data), 'money_box.xlsx');
         $excelFile = Excel::raw(new MoneyBoxExport(
             $data,
+            $ultimaInformacion,
             $encargado->nombres . ' ' . $encargado->apellidoPaterno . ' ' . $encargado->apellidoMaterno,
             $nombreDirector,
             $director . ' Carrera Tecnología Médica',
             'UNIVERSIDAD MAYOR DE SAN ANDRÉS FACULTAD DE MEDICINA, ENFERMERÍA, NUTRICIÓN Y TECNOLOGÍA MÉDICA' . "\n" . 'CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'DETALLE DE GASTOS DE CAJA CHICA CARRERA DE TECNOLOGÍA MÉDICA' . "\n" . 'PERIODO: DEL ' . $fechaMostrarOne . ' AL ' . $fechaMostrarTwo
         ), ExcelWriter::XLSX);
 
-        return response()->json(['fileContent' => base64_encode($excelFile)]);
+
+
+        return response()->json(['fileContent' => base64_encode($excelFile)])->header('Content-Type', 'application/json; charset=UTF-8');
     }
 
     public function editMoneyBox($id, Request $request)

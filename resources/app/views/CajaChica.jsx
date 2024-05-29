@@ -122,7 +122,7 @@ export default function CajaChica() {
                 </select>
             </div>
 
-            <div className="relative overflow-x-auto mt-3">
+            <div className="relative overflow-x-auto mt-3 max-w-full">
                 <table className="w-full text-sm text-center mx-auto">
                     <thead className="uppercase bg-gray-600 text-white">
                         <tr>
@@ -149,29 +149,29 @@ export default function CajaChica() {
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="">
                         {
                             filteredItems?.map(gasto => (
-                                <tr className="bg-white border-b" key={gasto.id}>
-                                    <td className="font-bold p-2 bg-slate-100">
+                                <tr className="bg-white border-b text-sm" key={gasto.id}>
+                                    <td className="font-bold p-1 bg-slate-100">
                                         {gasto.nro}
                                     </td>
-                                    <th scope="row" className="p-2 font-medium">
+                                    <th scope="row" className="p-1 font-medium">
                                         {convertirFechaSinHora(gasto.created_at)}
                                     </th>
-                                    <td className="p-2">
+                                    <td className="p-1">
                                         {gasto.gasto} Bs.
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-1">
                                         {gasto.interested}
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-1">
                                         {gasto.nroFactura || 'Sin número de factura'}
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-1 max-w-2xl">
                                         {gasto.descripcion}
                                     </td>
-                                    <td className="p-2">
+                                    <td className="p-1">
                                         <button
                                             className="bg-blue-700 hover:bg-blue-900 w-8 h-8 rounded-full"
                                             onClick={() => {
